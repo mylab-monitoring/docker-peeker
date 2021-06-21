@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using MyLab.DockerPeeker.Tools;
 
 namespace MyLab.DockerPeeker.Controllers
 {
@@ -20,28 +21,17 @@ namespace MyLab.DockerPeeker.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var res = new StringBuilder();
+            var strStat = await DockerStatProvider.GetStats();
+            var stat = DockerStatParser.Parse(strStat);
 
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = "docker", 
-                Arguments = "ps -a",
-                RedirectStandardOutput = true
-            };
-            Process proc = new Process
-            {
-                StartInfo = startInfo
-            };
-            proc.Start();
+            var sb= new StringBuilder();
 
-            while (!proc.StandardOutput.EndOfStream)
+            foreach (var dockerStatItem in stat)
             {
-                res.AppendLine(proc.StandardOutput.ReadLine());
+                dockerStatItem.ToMetrics(sb);
             }
 
-            await proc.WaitForExitAsync();
-
-            return Ok(res.ToString());
+            return Ok(sb.ToString());
         }
     }
 }
