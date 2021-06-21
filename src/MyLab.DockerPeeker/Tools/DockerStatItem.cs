@@ -18,6 +18,11 @@ namespace MyLab.DockerPeeker.Tools
         public const string NetOutputDescription = "The amount of data the container has sent over its network interface";
 
         /// <summary>
+        /// The ID of the container
+        /// </summary>
+        public string ContainerId { get; set; }
+
+        /// <summary>
         /// The name of the container
         /// </summary>
         public string ContainerName { get; set; }
@@ -82,18 +87,19 @@ namespace MyLab.DockerPeeker.Tools
 
             var items = str.Split('\t');
 
-            if(items.Length != 6)
+            if(items.Length != 7)
                 throw new FormatException("Wrong count or parameters");
 
-            ParsePair(items[2], "MemUsage", out var cMem, out var cLim);
-            ParsePair(items[4], "BlockIO", out var blockIn, out var blockOut);
-            ParsePair(items[5], "NetIO", out var netIn, out var netOut);
+            ParsePair(items[3], "MemUsage", out var cMem, out var cLim);
+            ParsePair(items[5], "BlockIO", out var blockIn, out var blockOut);
+            ParsePair(items[6], "NetIO", out var netIn, out var netOut);
 
             return new DockerStatItem
             {
-                ContainerName = items[0],
-                HostCpuUsage = ParsePercentage(items[1], "CPUPerc"),
-                HostMemUsage = ParsePercentage(items[3], "MemPerc"),
+                ContainerId = items[0],
+                ContainerName = items[1],
+                HostCpuUsage = ParsePercentage(items[2], "CPUPerc"),
+                HostMemUsage = ParsePercentage(items[4], "MemPerc"),
                 ContainerMemUsage = cMem,
                 ContainerMemLimit = cLim,
                 BlockInput = blockIn,

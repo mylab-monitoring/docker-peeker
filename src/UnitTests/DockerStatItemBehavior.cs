@@ -18,13 +18,14 @@ namespace UnitTests
         public void ShouldParse()
         {
             //Arrange
-            var testInput = "MyLab.DockerPeeker\t23.41%\t9.84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n";
+            var testInput = "947fb46a\tMyLab.DockerPeeker\t23.41%\t9.84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n";
 
             //Act
             var itm = DockerStatItem.Parse(testInput);
 
             //Assert
             Assert.NotNull(itm);
+            Assert.Equal("947fb46a", itm.ContainerId);
             Assert.Equal(23.41d, itm.HostCpuUsage);
             Assert.Equal(0.08d, itm.HostMemUsage);
             Assert.Equal(1024 * 1024 * 9.84d, itm.ContainerMemUsage);
@@ -49,11 +50,11 @@ namespace UnitTests
 
         [Theory]
         [InlineData("ololo")]
-        [InlineData("MyLab.DockerPeeker\t23-41%\t9.84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
-        [InlineData("MyLab.DockerPeeker\t23.41%\t9.84MiB - 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
-        [InlineData("MyLab.DockerPeeker\t23.41%\t9-84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
-        [InlineData("MyLab.DockerPeeker\t23.41%\t9.84MiB / 12-43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
-        [InlineData("MyLab.DockerPeeker\t23.41%\t9.84MiB / 12.43\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
+        [InlineData("947fb46a\tMyLab.DockerPeeker\t23-41%\t9.84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
+        [InlineData("947fb46a\tMyLab.DockerPeeker\t23.41%\t9.84MiB - 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
+        [InlineData("947fb46a\tMyLab.DockerPeeker\t23.41%\t9-84MiB / 12.43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
+        [InlineData("947fb46a\tMyLab.DockerPeeker\t23.41%\t9.84MiB / 12-43GiB\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
+        [InlineData("947fb46a\tMyLab.DockerPeeker\t23.41%\t9.84MiB / 12.43\t0.08%\t10B / 20B\t16.1kB / 163kB\n")]
         public void ShouldNotParseWithWrongFormatted(string testInput)
         {
             //Act && Assert
