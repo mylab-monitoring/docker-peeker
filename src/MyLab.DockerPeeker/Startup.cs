@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MyLab.DockerPeeker.Services;
+using MyLab.WebErrors;
 
 namespace MyLab.DockerPeeker
 {
@@ -25,7 +22,14 @@ namespace MyLab.DockerPeeker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(b => b.AddConsole());
-            services.AddControllers();
+            services.AddControllers(c => c.AddExceptionProcessing());
+            services.AddSingleton<ContainersLabelsSource>();
+            services.AddSingleton<IContainerLabelsProvider, DockerContainerLabelsProvider>();
+            services.AddSingleton<IDockerStatProvider, DockerStatProvider>();
+
+#if DEBUG
+            services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

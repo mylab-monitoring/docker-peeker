@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MyLab.DockerPeeker.Tools
 {
-    class DockerStatItem
+    public class DockerStatItem
     {
         public const string HostCpuUsageDescription = "The percentage of the host’s CPU the container is using";
         public const string HostMemUsageDescription = "The percentage of the host’s memory the container is using";
