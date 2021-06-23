@@ -58,34 +58,13 @@ namespace MyLab.DockerPeeker.Tools
         /// <see cref="NetOutputDescription"/>
         /// </summary>
         public double NetOutput { get; set; }
-
-        public void ToMetrics(StringBuilder sb)
-        {
-            if (sb == null) throw new ArgumentNullException(nameof(sb));
-
-            AppendMetric(sb, "container_host_cpu_usage_percentages_total", HostCpuUsageDescription, HostCpuUsage);
-            AppendMetric(sb, "container_host_memory_usage_percentages_total", HostMemUsageDescription,  HostMemUsage);
-            AppendMetric(sb, "container_memory_usage_bytes_total", ContainerMemUsageDescription, ContainerMemUsage);
-            AppendMetric(sb, "container_memory_limit_bytes_total", ContainerMemLimitDescription, ContainerMemLimit);
-            AppendMetric(sb, "container_block_input_bytes_total", BlockInputDescription, BlockInput);
-            AppendMetric(sb, "container_block_output_bytes_total", BlockOutputDescription, BlockOutput);
-            AppendMetric(sb, "container_network_input_bytes_total", NetInputDescription, NetInput);
-            AppendMetric(sb, "container_network_output_bytes_total", NetOutputDescription, NetOutput);
-        }
-
-        void AppendMetric(StringBuilder sb, string metricName, string description, double value)
-        {
-            sb.AppendLine($"# HELP {description}");
-            sb.AppendLine($"# TYPE {metricName} guage");
-            sb.AppendLine($"metricName{{name={ContainerName}}} {value:F2}");
-        }
-
+        
         public static DockerStatItem Parse(string str)
         {
             if (string.IsNullOrWhiteSpace(str))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(str));
 
-            var items = str.Split('\t');
+            var items = str.Trim('\"').Split('\t');
 
             if(items.Length != 7)
                 throw new FormatException("Wrong count or parameters");

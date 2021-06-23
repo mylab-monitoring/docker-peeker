@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,22 +10,43 @@ namespace MyLab.DockerPeeker.Tools
     {
         public const string LabelNamePrefix = "docker_label_";
         public const string ContainerIdSeparator = "<id-separator>";
+        public const string StringStartMarker = "<string-start>";
 
         public static async Task<string[]> GetStats()
         {
             var response =
-                await Call("stats --no-stream --no-trunc --format \"{{.ID}}\\t{{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\\t{{.MemPerc}}\\t{{.BlockIO}}\\t{{.NetIO}}\"");
-            return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+                await Call(
+                    "stats",
+                    "--no-stream",
+                    "--no-trunc",
+                    "--format",
+                    StringStartMarker + "{{.ID}}\\t{{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\\t{{.MemPerc}}\\t{{.BlockIO}}\\t{{.NetIO}}");
+            return response
+                .Replace("\n", " ")
+                .Replace(StringStartMarker, "\n")
+                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 
         public static async Task<string[]> GetLabels(string[] ids)
         {
-            var response = await Call("inspect --format '{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}' " + string.Join(" ", ids));
+            var args = new List<string>
+            {
+                "inspect",
+                "--format",
+                StringStartMarker + "{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}'"
+            };
 
-            return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            args.AddRange(ids);
+
+            var response = await Call(args.ToArray());
+
+            return response
+                .Replace("\n", " ")
+                .Replace(StringStartMarker, "\n")
+                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 
-        static async Task<string> Call(string command)
+        static async Task<string> Call(params string[] args)
         {
             var res = new StringBuilder();
             var err = new StringBuilder();
@@ -32,10 +54,15 @@ namespace MyLab.DockerPeeker.Tools
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "docker",
-                Arguments = command,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
             };
+
+            foreach (var arg in args)
+            {
+                startInfo.ArgumentList.Add(arg);
+            }
+
             Process proc = new Process
             {
                 StartInfo = startInfo

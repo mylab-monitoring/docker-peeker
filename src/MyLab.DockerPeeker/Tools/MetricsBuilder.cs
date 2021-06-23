@@ -69,6 +69,18 @@ namespace MyLab.DockerPeeker.Tools
 
                     return new string(newString);
                 }
+
+                string NormValue(string key)
+                {
+                    char[] newString = new char[key.Length];
+
+                    for (int i = 0; i < key.Length; i++)
+                    {
+                        newString[i] = (key[i] != '\"' && key[i] != ',') ? key[i] : '_';
+                    }
+
+                    return new string(newString);
+                }
             }
         }
     }

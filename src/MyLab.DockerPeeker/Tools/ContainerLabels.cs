@@ -23,8 +23,9 @@ namespace MyLab.DockerPeeker.Tools
             if(indexOfDockerIdSplitter == -1)
                 throw new FormatException("Cant find container id separator: " + dockerContainerPs);
 
-            string containerId = dockerContainerPs.Remove(indexOfDockerIdSplitter);
-            string pairsStr = dockerContainerPs.Substring(indexOfDockerIdSplitter + DockerCaller.ContainerIdSeparator.Length).Trim();
+            string normOriginStr = dockerContainerPs.Trim('\'');
+            string containerId = normOriginStr.Remove(indexOfDockerIdSplitter);
+            string pairsStr = normOriginStr.Substring(indexOfDockerIdSplitter + DockerCaller.ContainerIdSeparator.Length).Trim();
 
             var labelPairs = new Dictionary<string,string>();
 
