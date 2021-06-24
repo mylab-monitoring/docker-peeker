@@ -46,7 +46,7 @@ namespace MyLab.DockerPeeker.Tools
             void AppendMetric(string metricName, string description, double value)
             {
                 sb.AppendLine($"# HELP {description}");
-                sb.AppendLine($"# TYPE {metricName} guage");
+                sb.AppendLine($"# TYPE {metricName} gauge");
                 sb.Append($"{metricName}{{name={item.ContainerName}");
 
                 if (containerLabels != null)
