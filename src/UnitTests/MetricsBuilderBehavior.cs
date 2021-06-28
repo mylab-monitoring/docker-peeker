@@ -48,14 +48,14 @@ namespace UnitTests
             _output.WriteLine(strOutput);
 
             //Assert
-            Assert.Contains("container_host_cpu_usage_percentages_total{name=foo,container_label_bar=baz} 1.10", strOutput);
-            Assert.Contains("container_host_memory_usage_percentages_total{name=foo,container_label_bar=baz} 2.20", strOutput);
-            Assert.Contains("container_memory_usage_bytes_total{name=foo,container_label_bar=baz} 3.30", strOutput);
-            Assert.Contains("container_memory_limit_bytes_total{name=foo,container_label_bar=baz} 4.40", strOutput);
-            Assert.Contains("container_block_input_bytes_total{name=foo,container_label_bar=baz} 5.50", strOutput);
-            Assert.Contains("container_block_output_bytes_total{name=foo,container_label_bar=baz} 6.60", strOutput);
-            Assert.Contains("container_network_input_bytes_total{name=foo,container_label_bar=baz} 7.70", strOutput);
-            Assert.Contains("container_network_output_bytes_total{name=foo,container_label_bar=baz} 8.80", strOutput);
+            Assert.Contains("container_host_cpu_usage_percentages_total{name=\"foo\",container_label_bar=\"baz\"} 1.10", strOutput);
+            Assert.Contains("container_host_memory_usage_percentages_total{name=\"foo\",container_label_bar=\"baz\"} 2.20", strOutput);
+            Assert.Contains("container_memory_usage_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 3.30", strOutput);
+            Assert.Contains("container_memory_limit_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 4.40", strOutput);
+            Assert.Contains("container_block_input_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 5.50", strOutput);
+            Assert.Contains("container_block_output_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 6.60", strOutput);
+            Assert.Contains("container_network_input_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 7.70", strOutput);
+            Assert.Contains("container_network_output_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 8.80", strOutput);
         }
 
         class TestContainerLabelsProvider : IContainerLabelsProvider

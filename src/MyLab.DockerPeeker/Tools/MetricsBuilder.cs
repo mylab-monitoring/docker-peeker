@@ -47,11 +47,11 @@ namespace MyLab.DockerPeeker.Tools
             {
                 sb.AppendLine($"# HELP {description}");
                 sb.AppendLine($"# TYPE {metricName} gauge");
-                sb.Append($"{metricName}{{name={item.ContainerName}");
+                sb.Append($"{metricName}{{name=\"{item.ContainerName}\"");
 
                 if (containerLabels != null)
                 {
-                    var keyValues = containerLabels.Select(kv => $"container_label_{NormKey(kv.Key)}={kv.Value}");
+                    var keyValues = containerLabels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
                     var addLabels = string.Join(',', keyValues);
                     sb.Append("," + addLabels);
                 }
