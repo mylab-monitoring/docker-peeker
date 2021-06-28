@@ -33,7 +33,7 @@ namespace MyLab.DockerPeeker.Tools
             {
                 "inspect",
                 "--format",
-                StringStartMarker + "{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}'"
+                StringStartMarker + "{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
             };
 
             args.AddRange(ids);
