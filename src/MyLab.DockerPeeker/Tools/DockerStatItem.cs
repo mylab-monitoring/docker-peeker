@@ -12,10 +12,10 @@ namespace MyLab.DockerPeeker.Tools
         public const string HostMemUsageDescription = "The percentage of the host’s memory the container is using";
         public const string ContainerMemUsageDescription = "The total memory the container is using";
         public const string ContainerMemLimitDescription = "The total amount of memory it is allowed to use";
-        public const string BlockInputDescription = "The amount of data the container has read from block devices on the host";
-        public const string BlockOutputDescription = "The amount of data the container has written to block devices on the host";
-        public const string NetInputDescription = "The amount of data the container received over its network interface";
-        public const string NetOutputDescription = "The amount of data the container has sent over its network interface";
+        public const string BlockRxDescription = "The amount of data the container has read from block devices on the host";
+        public const string BlockTxDescription = "The amount of data the container has written to block devices on the host";
+        public const string NetRxDescription = "The amount of data the container received over its network interface";
+        public const string NetTxDescription = "The amount of data the container has sent over its network interface";
 
         /// <summary>
         /// The ID of the container
@@ -43,21 +43,21 @@ namespace MyLab.DockerPeeker.Tools
         /// </summary>
         public double ContainerMemLimit { get; set; }
         /// <summary>
-        /// <see cref="BlockInputDescription"/>
+        /// <see cref="BlockRxDescription"/>
         /// </summary>
-        public double BlockInput { get; set; }
+        public double BlockRx { get; set; }
         /// <summary>
-        /// <see cref="BlockOutputDescription"/>
+        /// <see cref="BlockTxDescription"/>
         /// </summary>
-        public double BlockOutput { get; set; }
+        public double BlockTx { get; set; }
         /// <summary>
-        /// <see cref="NetInputDescription"/>
+        /// <see cref="NetRxDescription"/>
         /// </summary>
-        public double NetInput { get; set; }
+        public double NetRx { get; set; }
         /// <summary>
-        /// <see cref="NetOutputDescription"/>
+        /// <see cref="NetTxDescription"/>
         /// </summary>
-        public double NetOutput { get; set; }
+        public double NetTx { get; set; }
         
         public static DockerStatItem Parse(string str)
         {
@@ -70,8 +70,8 @@ namespace MyLab.DockerPeeker.Tools
                 throw new FormatException("Wrong count or parameters");
 
             ParsePair(items[3], "MemUsage", out var cMem, out var cLim);
-            ParsePair(items[5], "BlockIO", out var blockIn, out var blockOut);
-            ParsePair(items[6], "NetIO", out var netIn, out var netOut);
+            ParsePair(items[5], "BlockIO", out var blockRx, out var blockTx);
+            ParsePair(items[6], "NetIO", out var netRx, out var netTx);
 
             return new DockerStatItem
             {
@@ -81,10 +81,10 @@ namespace MyLab.DockerPeeker.Tools
                 HostMemUsage = ParsePercentage(items[4], "MemPerc"),
                 ContainerMemUsage = cMem,
                 ContainerMemLimit = cLim,
-                BlockInput = blockIn,
-                BlockOutput = blockOut,
-                NetInput = netIn,
-                NetOutput = netOut
+                BlockRx = blockRx,
+                BlockTx = blockTx,
+                NetRx = netRx,
+                NetTx = netTx
             };
         }
 

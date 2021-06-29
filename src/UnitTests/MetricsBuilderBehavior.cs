@@ -33,10 +33,10 @@ namespace UnitTests
                     HostMemUsage = 2.2,
                     ContainerMemUsage = 3.3,
                     ContainerMemLimit = 4.4,
-                    BlockInput = 5.5,
-                    BlockOutput = 6.6,
-                    NetInput = 7.7,
-                    NetOutput = 8.8,
+                    BlockRx = 5.5,
+                    BlockTx = 6.6,
+                    NetRx = 7.7,
+                    NetTx = 8.8,
                     ContainerName = "foo"
                 },
             };

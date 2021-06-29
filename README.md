@@ -63,10 +63,10 @@ services:
 | `container_host_memory_usage_percentages_total` | gauge | The percentage of the host’s memory the container is using   |
 | `container_memory_usage_bytes_total`            | gauge | The total memory the container is using                      |
 | `container_memory_limit_bytes_total`            | gauge | The total amount of memory it is allowed to use              |
-| `container_block_input_bytes_total`             | gauge | The amount of data the container has read from block devices on the host |
-| `container_block_output_bytes_total`            | gauge | The amount of data the container has written to block devices on the host |
-| `container_network_input_bytes_total`           | gauge | The amount of data the container received over its network interface |
-| `container_network_output_bytes_total`          | gauge | The amount of data the container has sent over its network interface |
+| `container_block_rx_bytes_total`                | gauge | The amount of data the container has read from block devices on the host |
+| `container_block_tx_bytes_total`                | gauge | The amount of data the container has written to block devices on the host |
+| `container_network_rx_bytes_total`              | gauge | The amount of data the container received over its network interface |
+| `container_network_tx_bytes_total`              | gauge | The amount of data the container has sent over its network interface |
 
 Каждая метрика снабжается следующими меткой имени контейнера`name`.
 

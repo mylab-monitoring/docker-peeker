@@ -33,10 +33,10 @@ namespace UnitTests
             Assert.Equal(0.08d, itm.HostMemUsage);
             Assert.Equal(1024 * 1024 * 9.84d, itm.ContainerMemUsage);
             Assert.Equal(1024 * 1024 * 1024 * 12.43d, itm.ContainerMemLimit);
-            Assert.Equal(10d, itm.BlockInput);
-            Assert.Equal(20d, itm.BlockOutput);
-            Assert.Equal(1024 * 16.1d, itm.NetInput);
-            Assert.Equal(1024 * 163d, itm.NetOutput);
+            Assert.Equal(10d, itm.BlockRx);
+            Assert.Equal(20d, itm.BlockTx);
+            Assert.Equal(1024 * 16.1d, itm.NetRx);
+            Assert.Equal(1024 * 163d, itm.NetTx);
         }
 
         [Fact]
