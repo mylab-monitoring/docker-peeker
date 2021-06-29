@@ -46,7 +46,7 @@ version: '3.2'
 services:
   docker-peeker:
     image: mylabtools/docker-peeker
-	container_name: docker-peeker
+    container_name: docker-peeker
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
 ```
