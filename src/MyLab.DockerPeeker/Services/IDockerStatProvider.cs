@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MyLab.DockerPeeker.Tools;
 
@@ -13,8 +14,13 @@ namespace MyLab.DockerPeeker.Services
     {
         public async Task<DockerStatItem[]> Provide()
         {
-            var dockerResponse = await DockerCaller.GetStats();
-            return dockerResponse.Select(DockerStatItem.Parse).ToArray();
+            var ids = await DockerCaller.GetActiveContainersIds();
+
+
+
+            //return dockerResponse.Select(DockerStatItem.Parse).ToArray();
+
+            throw new NotImplementedException();
         }
     }
 }

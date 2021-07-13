@@ -11,20 +11,16 @@ namespace MyLab.DockerPeeker.Tools
         public const string LabelNamePrefix = "docker_label_";
         public const string ContainerIdSeparator = "<id-separator>";
         public const string StringStartMarker = "<string-start>";
-
-        public static async Task<string[]> GetStats()
+        
+        public static async Task<string[]> GetActiveContainersIds()
         {
             var response =
                 await Call(
-                    "stats",
-                    "--no-stream",
+                    "ps",
                     "--no-trunc",
                     "--format",
-                    StringStartMarker + "{{.ID}}\\t{{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\\t{{.MemPerc}}\\t{{.BlockIO}}\\t{{.NetIO}}");
-            return response
-                .Replace("\n", " ")
-                .Replace(StringStartMarker, "\n")
-                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
+                    "{{.ID}}");
+            return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 
         public static async Task<string[]> GetLabels(string[] ids)
