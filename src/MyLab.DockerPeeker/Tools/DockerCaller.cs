@@ -12,14 +12,14 @@ namespace MyLab.DockerPeeker.Tools
         public const string ContainerIdSeparator = "<id-separator>";
         public const string StringStartMarker = "<string-start>";
         
-        public static async Task<string[]> GetActiveContainersIds()
+        public static async Task<string[]> GetActiveContainersAsync()
         {
             var response =
                 await Call(
                     "ps",
                     "--no-trunc",
                     "--format",
-                    "{{.ID}}");
+                    "{{.ID}}\t{{.Names}}");
             return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 

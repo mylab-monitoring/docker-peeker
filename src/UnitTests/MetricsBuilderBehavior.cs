@@ -60,7 +60,7 @@ namespace UnitTests
 
         class TestContainerLabelsProvider : IContainerLabelsProvider
         {
-            public Task<ContainerLabels[]> Provide(string[] containersIds)
+            public Task<ContainerLabels[]> ProvideAsync(string[] containersIds)
             {
                 return Task.FromResult(new []
                 {

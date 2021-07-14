@@ -24,7 +24,7 @@ namespace MyLab.DockerPeeker.Tools
                 .Select(s => s.ContainerId)
                 .ToArray();
 
-            var labels = await _containerLabelsProvider.Provide(cIds);
+            var labels = await _containerLabelsProvider.ProvideAsync(cIds);
 
             foreach (var statItem in stat)
             {

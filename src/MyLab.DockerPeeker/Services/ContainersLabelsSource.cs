@@ -23,7 +23,7 @@ namespace MyLab.DockerPeeker.Services
 
             if (newContainers.Length != 0)
             {
-                var containerLabelsList = await _containerLabelsProvider.Provide(newContainers);
+                var containerLabelsList = await _containerLabelsProvider.ProvideAsync(newContainers);
                 foreach (var containerLabels in containerLabelsList)
                 {
                     _labelsMap.TryAdd(containerLabels.ContainerId, containerLabels);

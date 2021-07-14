@@ -6,12 +6,12 @@ namespace MyLab.DockerPeeker.Services
 {
     public interface IContainerLabelsProvider
     {
-        Task<ContainerLabels[]> Provide(string[] containersIds);
+        Task<ContainerLabels[]> ProvideAsync(string[] containersIds);
     }
 
     class DockerContainerLabelsProvider : IContainerLabelsProvider
     {
-        public async Task<ContainerLabels[]> Provide(string[] containersIds)
+        public async Task<ContainerLabels[]> ProvideAsync(string[] containersIds)
         {
             var dockerResponse = await DockerCaller.GetLabels(containersIds);
             return dockerResponse.Select(ContainerLabels.Parse).ToArray();

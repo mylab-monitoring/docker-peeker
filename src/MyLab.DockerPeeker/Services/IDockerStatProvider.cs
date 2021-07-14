@@ -14,7 +14,7 @@ namespace MyLab.DockerPeeker.Services
     {
         public async Task<DockerStatItem[]> Provide()
         {
-            var ids = await DockerCaller.GetActiveContainersIds();
+            var ids = await DockerCaller.GetActiveContainersAsync();
 
 
 
