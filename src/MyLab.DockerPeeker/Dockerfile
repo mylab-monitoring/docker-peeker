@@ -1,8 +1,6 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mylabtools/docker-net:1.0.0 AS base
-RUN apt-get update -y
-RUN apt-get install -y nc
 WORKDIR /app
 EXPOSE 80
 
