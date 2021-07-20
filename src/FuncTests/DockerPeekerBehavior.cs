@@ -56,8 +56,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_cpu_user_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 8313", metrics);
-            Assert.Contains("container_cpu_system_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 10804",
+            Assert.Contains("container_cpu_user_jiffies_total{name=\"bar\",container_label_label_pid=\"123\"} 8313", metrics);
+            Assert.Contains("container_cpu_system_jiffies_total{name=\"bar\",container_label_label_pid=\"123\"} 10804",
                 metrics);
         }
 
@@ -74,16 +74,16 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_mem_swap_bytes{name=\"bar\",container_label_label1=\"value1\"} 0", metrics);
-            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label1=\"value1\"} 11492564992",
+            Assert.Contains("container_mem_swap_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics);
+            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label_pid=\"123\"} 11492564992",
                 metrics);
-            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label1=\"value1\"} 1930993664",
-                metrics);
-            Assert.Contains(
-                "container_mem_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807",
+            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label_pid=\"123\"} 1930993664",
                 metrics);
             Assert.Contains(
-                "container_memsw_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807",
+                "container_mem_limit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 9223372036854775807",
+                metrics);
+            Assert.Contains(
+                "container_memsw_limit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 9223372036854775807",
                 metrics);
         }
 
@@ -100,8 +100,30 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_blk_read_bytes_total{name=\"bar\",container_label_label1=\"value1\"} 263622656", metrics);
-            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label1=\"value1\"} 0", metrics);
+            Assert.Contains("container_blk_read_bytes_total{name=\"bar\",container_label_label_pid=\"123\"} 263622656", metrics);
+            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics);
+        }
+
+        [Fact]
+        public async Task ShouldExpireContainerState()
+        {
+            //Arrange
+            var client = _api.StartWithProxy();
+
+            //Act
+            var metrics1 = (await client.GetMetrics())
+                .Split('\n')
+                .Select(s => s.Trim())
+                .ToArray();
+
+            var metrics2 = (await client.GetMetrics())
+                .Split('\n')
+                .Select(s => s.Trim())
+                .ToArray();
+
+            //Assert
+            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics1);
+            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"124\"} 0", metrics2);
         }
 
         public void Dispose()
@@ -112,23 +134,27 @@ namespace FuncTests
 
     class TestContainerStateProvider : IContainerStateProvider
     {
-        public Task<ContainerState[]> ProvideAsync(string[] containersIds)
+        private int _pidIndex = 123;
+
+        public Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
         {
-            if (containersIds.Length != 1)
+            if (containersLinks.Length != 1)
                 throw new InvalidOperationException("Container id should be single");
 
-            var containerLongId = containersIds.SingleOrDefault();
+            var containerLongId = containersLinks.SingleOrDefault()?.LongId;
 
             if(string.IsNullOrWhiteSpace(containerLongId))
                 throw new InvalidOperationException("Container id not defined");
             if(containerLongId != "foo")
                 throw new InvalidOperationException("Met unexpected container id");
 
+            var pid = _pidIndex++.ToString();
+
             return Task.FromResult(new []
             {
-                new ContainerState("foo", "123", new Dictionary<string, string>()
+                new ContainerState("foo", pid, new Dictionary<string, string>
                 {
-                    {"label1", "value1"}
+                    {"label_pid", pid}
                 }), 
             });
         }
@@ -143,7 +169,8 @@ namespace FuncTests
                 new ContainerLink
                 {
                     LongId = "foo",
-                    Name = "bar"
+                    Name = "bar",
+                    CreatedAt = DateTime.Now
                 },
             });
         }

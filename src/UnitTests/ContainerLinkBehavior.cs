@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MyLab.DockerPeeker.Services;
 using Xunit;
 
@@ -16,7 +12,8 @@ namespace UnitTests
             //Arrange
             var id = "58b7663bc530bef06e679f79334bcb3cce051806e6907f00f340e5bb703f6a64";
             var name = "foo";
-            var stringLink = $"{id}\t{name}";
+            var createdAt = "2021-07-17 18:43:15 +0300 MSK";
+            var stringLink = $"{id}\t{name}\t{createdAt}";
 
             //Act
             var link = ContainerLink.Read(stringLink);
@@ -24,6 +21,7 @@ namespace UnitTests
             //Assert
             Assert.Equal(id, link.LongId);
             Assert.Equal(name, link.Name);
+            Assert.Equal(new DateTime(2021, 07,17, 18, 43, 15, DateTimeKind.Utc), link.CreatedAt);
         }
     }
 }

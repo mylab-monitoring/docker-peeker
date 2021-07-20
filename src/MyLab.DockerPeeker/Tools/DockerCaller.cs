@@ -28,11 +28,11 @@ namespace MyLab.DockerPeeker.Tools
                     "ps",
                     "--no-trunc",
                     "--format",
-                    "{{.ID}}\t{{.Names}}");
+                    "{{.ID}}\t{{.Names}}\t{{.CreatedAt}}");
             return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static async Task<string[]> GetLabels(string[] ids)
+        public static async Task<string[]> GetStates(string[] ids)
         {
             var args = new List<string>
             {

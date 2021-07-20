@@ -26,11 +26,8 @@ namespace MyLab.DockerPeeker.Tools
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
         {
             var containerLinks = await _containerListProvider.ProviderActiveContainersAsync();
-            var containerIds = containerLinks
-                .Select(l => l.LongId)
-                .ToArray();
 
-            var state = await _containerStateProvider.ProvideAsync(containerIds);
+            var state = await _containerStateProvider.ProvideAsync(containerLinks);
 
             var metricsProviders = 
                 _containerMetricsProviderRegistry
