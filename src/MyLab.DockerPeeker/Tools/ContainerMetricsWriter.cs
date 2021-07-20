@@ -37,7 +37,7 @@ namespace MyLab.DockerPeeker.Tools
                 sb.Append("," + addLabels);
             }
 
-            sb.AppendLine($"}} {metric.Value.ToString("F2", CultureInfo.InvariantCulture)}");
+            sb.AppendLine($"}} {metric.Value}");
 
             string NormKey(string key)
             {

@@ -2,10 +2,10 @@
 {
     public class ContainerMetric
     {
-        public double Value { get; }
+        public long Value { get; }
         public ContainerMetricType Type { get; }
 
-        public ContainerMetric(double value, ContainerMetricType type)
+        public ContainerMetric(long value, ContainerMetricType type)
         {
             Value = value;
             Type = type;

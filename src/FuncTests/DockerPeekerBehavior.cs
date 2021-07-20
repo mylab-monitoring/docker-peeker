@@ -44,7 +44,7 @@ namespace FuncTests
         }
 
         [Fact]
-        public async Task ShouldProvideCpuAcct()
+        public async Task ShouldProvideCpuAcctStat()
         {
             //Arrange
             var client = _api.StartWithProxy();
@@ -56,8 +56,28 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_cpu_user_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 8313.00", metrics);
-            Assert.Contains("container_cpu_system_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 10804.00", metrics);
+            Assert.Contains("container_cpu_user_jiffies{name=\"bar\",container_label_label1=\"value1\"} 8313", metrics);
+            Assert.Contains("container_cpu_system_jiffies{name=\"bar\",container_label_label1=\"value1\"} 10804", metrics);
+        }
+
+        [Fact]
+        public async Task ShouldProvideMemStat()
+        {
+            //Arrange
+            var client = _api.StartWithProxy();
+
+            //Act
+            var metrics = (await client.GetMetrics())
+                .Split('\n')
+                .Select(s => s.Trim())
+                .ToArray();
+
+            //Assert
+            Assert.Contains("container_mem_swap_bytes{name=\"bar\",container_label_label1=\"value1\"} 0", metrics);
+            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label1=\"value1\"} 11492564992", metrics);
+            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label1=\"value1\"} 1930993664", metrics);
+            Assert.Contains("container_mem_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807", metrics);
+            Assert.Contains("container_memsw_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807", metrics);
         }
 
         public void Dispose()
@@ -107,14 +127,53 @@ namespace FuncTests
 
     class TestFileContentProvider : IFileContentProvider
     {
-        public Task<string> ReadCpuAcct(string containerLongId)
+        public Task<string> ReadCpuAcctStat(string containerLongId)
         {
-            if(containerLongId != "foo")
+            if (containerLongId != "foo")
                 throw new InvalidOperationException("Met unexpected container id");
 
             var res = new StringBuilder()
                 .AppendLine("user 8313")
                 .AppendLine("system 10804")
+                .ToString();
+
+            return Task.FromResult(res);
+        }
+
+        public Task<string> ReadMemStat(string containerLongId)
+        {
+            if (containerLongId != "foo")
+                throw new InvalidOperationException("Met unexpected container id");
+
+            var res = new StringBuilder()
+            .AppendLine("cache 11492564992")
+            .AppendLine("rss 1930993664")
+            .AppendLine("mapped_file 306728960")
+            .AppendLine("pgpgin 406632648")
+            .AppendLine("pgpgout 403355412")
+            .AppendLine("swap 0")
+            .AppendLine("pgfault 728281223")
+            .AppendLine("pgmajfault 1724")
+            .AppendLine("inactive_anon 46608384")
+            .AppendLine("active_anon 1884520448")
+            .AppendLine("inactive_file 7003344896")
+            .AppendLine("active_file 4489052160")
+            .AppendLine("unevictable 32768")
+            .AppendLine("hierarchical_memory_limit 9223372036854775807")
+            .AppendLine("hierarchical_memsw_limit 9223372036854775807")
+            .AppendLine("total_cache 11492564992")
+            .AppendLine("total_rss 1930993664")
+            .AppendLine("total_mapped_file 306728960")
+            .AppendLine("total_pgpgin 406632648")
+            .AppendLine("total_pgpgout 403355412")
+            .AppendLine("total_swap 0")
+            .AppendLine("total_pgfault 728281223")
+            .AppendLine("total_pgmajfault 1724")
+            .AppendLine("total_inactive_anon 46608384")
+            .AppendLine("total_active_anon 1884520448")
+            .AppendLine("total_inactive_file 7003344896")
+            .AppendLine("total_active_file 4489052160")
+            .AppendLine("total_unevictable 32768")
                 .ToString();
 
             return Task.FromResult(res);

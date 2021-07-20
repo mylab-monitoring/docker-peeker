@@ -14,9 +14,10 @@ namespace MyLab.DockerPeeker.Services
 
         public ContainerMetricsProviderRegistry(IFileContentProvider fileContentProvider)
         {
-            _providers = new[]
+            _providers = new IContainerMetricsProvider[]
             {
                 new CpuAcctStatCmProvider(fileContentProvider),
+                new MemStatCmProvider(fileContentProvider),
             };
         }
 
