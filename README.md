@@ -36,7 +36,11 @@ GET http://container_name:80/metrics
 
 Сервис развёртывается в docker-контейнере на хостовой машине, где необходимо собирать метрики о контейнерах.
 
-Для корректной работы, необходимо в контейнер сервиса подключить файл сокета докера хостовой машины.
+Для корректной работы, необходимо в контейнер сервиса подключить:
+
+* файл сокета докера в `/var/run/docker.sock`
+* директорию с псевдофайлами контрольных групп в `/etc/docker-peeker/cgroup`
+* директорию с псевдофайлами процессов в `/etc/docker-peeker/proc`
 
 Пример `docker-comopose` файла:
 
@@ -48,7 +52,10 @@ services:
     image: mylabtools/docker-peeker
     container_name: docker-peeker
     volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /sys/fs/cgroup:/etc/docker-peeker/cgroup:ro
+    - /proc:/etc/docker-peeker/proc:ro
+
 ```
 
 ## Метрики
