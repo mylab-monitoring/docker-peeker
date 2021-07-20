@@ -57,7 +57,8 @@ namespace FuncTests
 
             //Assert
             Assert.Contains("container_cpu_user_jiffies{name=\"bar\",container_label_label1=\"value1\"} 8313", metrics);
-            Assert.Contains("container_cpu_system_jiffies{name=\"bar\",container_label_label1=\"value1\"} 10804", metrics);
+            Assert.Contains("container_cpu_system_jiffies{name=\"bar\",container_label_label1=\"value1\"} 10804",
+                metrics);
         }
 
         [Fact]
@@ -74,10 +75,33 @@ namespace FuncTests
 
             //Assert
             Assert.Contains("container_mem_swap_bytes{name=\"bar\",container_label_label1=\"value1\"} 0", metrics);
-            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label1=\"value1\"} 11492564992", metrics);
-            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label1=\"value1\"} 1930993664", metrics);
-            Assert.Contains("container_mem_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807", metrics);
-            Assert.Contains("container_memsw_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807", metrics);
+            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label1=\"value1\"} 11492564992",
+                metrics);
+            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label1=\"value1\"} 1930993664",
+                metrics);
+            Assert.Contains(
+                "container_mem_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807",
+                metrics);
+            Assert.Contains(
+                "container_memsw_limit_bytes{name=\"bar\",container_label_label1=\"value1\"} 9223372036854775807",
+                metrics);
+        }
+
+        [Fact]
+        public async Task ShouldProvideBlockIdStat()
+        {
+            //Arrange
+            var client = _api.StartWithProxy();
+
+            //Act
+            var metrics = (await client.GetMetrics())
+                .Split('\n')
+                .Select(s => s.Trim())
+                .ToArray();
+
+            //Assert
+            Assert.Contains("container_blk_read_bytes_total{name=\"bar\",container_label_label1=\"value1\"} 263622656", metrics);
+            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label1=\"value1\"} 0", metrics);
         }
 
         public void Dispose()
@@ -174,6 +198,33 @@ namespace FuncTests
             .AppendLine("total_inactive_file 7003344896")
             .AppendLine("total_active_file 4489052160")
             .AppendLine("total_unevictable 32768")
+                .ToString();
+
+            return Task.FromResult(res);
+        }
+
+        public Task<string> ReadBlkIoServiceBytesStat(string containerLongId)
+        {
+            if (containerLongId != "foo")
+                throw new InvalidOperationException("Met unexpected container id");
+
+            var res = new StringBuilder()
+            .AppendLine("253:1 Read 12599296")
+            .AppendLine("253:1 Write 0")
+            .AppendLine("253:1 Sync 0")
+            .AppendLine("253:1 Async 12599296")
+            .AppendLine("253:1 Total 12599296")
+            .AppendLine("8:0 Read 131813376")
+            .AppendLine("8:0 Write 0")
+            .AppendLine("8:0 Sync 0")
+            .AppendLine("8:0 Async 131813376")
+            .AppendLine("8:0 Total 131813376")
+            .AppendLine("253:0 Read 119209984")
+            .AppendLine("253:0 Write 0")
+            .AppendLine("253:0 Sync 0")
+            .AppendLine("253:0 Async 119209984")
+            .AppendLine("253:0 Total 119209984")
+            .AppendLine("Total 263622656")
                 .ToString();
 
             return Task.FromResult(res);

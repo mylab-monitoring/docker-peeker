@@ -13,12 +13,12 @@ namespace MyLab.DockerPeeker.Tools
         private readonly IFileContentProvider _fileContentProvider;
 
         readonly ContainerMetricType _cpuUserMetricType = new ContainerMetricType(
-            "container_cpu_user_jiffies",
+            "container_cpu_user_jiffies_total",
             "counter",
             "Time is the amount of time a process has direct control of the CPU, executing process code");
 
         readonly ContainerMetricType _cpuSystemMetricType = new ContainerMetricType(
-            "container_cpu_system_jiffies",
+            "container_cpu_system_jiffies_total",
             "counter",
             "Time is the time the kernel is executing system calls on behalf of the process");
 
@@ -34,8 +34,8 @@ namespace MyLab.DockerPeeker.Tools
 
             return new[]
             {
-                new ContainerMetric(parser.Extract("user", "User cpu"), _cpuUserMetricType),
-                new ContainerMetric(parser.Extract("system", "System cpu"), _cpuSystemMetricType)
+                new ContainerMetric(parser.ExtractKey("user", "User cpu"), _cpuUserMetricType),
+                new ContainerMetric(parser.ExtractKey("system", "System cpu"), _cpuSystemMetricType)
             };
         }
     }

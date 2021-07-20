@@ -45,11 +45,11 @@ namespace MyLab.DockerPeeker.Tools
 
             return new[]
             {
-                new ContainerMetric(parser.Extract("swap", "Mem swap"), _memSwapMetricType),
-                new ContainerMetric(parser.Extract("cache", "Mem cache"), _memCacheMetricType),
-                new ContainerMetric(parser.Extract("rss", "Mem rss"), _memRssMetricType),
-                new ContainerMetric(parser.Extract("hierarchical_memory_limit", "Mem limit"), _memLimitMetricType),
-                new ContainerMetric(parser.Extract("hierarchical_memsw_limit", "Mem+Swap limit"), _memSwLimitMetricType),
+                new ContainerMetric(parser.ExtractKey("swap", "Mem swap"), _memSwapMetricType),
+                new ContainerMetric(parser.ExtractKey("cache", "Mem cache"), _memCacheMetricType),
+                new ContainerMetric(parser.ExtractKey("rss", "Mem rss"), _memRssMetricType),
+                new ContainerMetric(parser.ExtractKey("hierarchical_memory_limit", "Mem limit"), _memLimitMetricType),
+                new ContainerMetric(parser.ExtractKey("hierarchical_memsw_limit", "Mem+Swap limit"), _memSwLimitMetricType),
             };
 
         }

@@ -18,6 +18,7 @@ namespace MyLab.DockerPeeker.Services
             {
                 new CpuAcctStatCmProvider(fileContentProvider),
                 new MemStatCmProvider(fileContentProvider),
+                new BlkIoStatCmProvider(fileContentProvider),
             };
         }
 
