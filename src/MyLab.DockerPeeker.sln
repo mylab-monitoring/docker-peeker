@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLab.DockerPeeker", "MyLab.DockerPeeker\MyLab.DockerPeeker.csproj", "{75D7F84F-C425-484E-9D80-17959FB7C327}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{412D9308-8573-426F-87F4-0975B13A8F3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{412D9308-8573-426F-87F4-0975B13A8F3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuncTests", "FuncTests\FuncTests.csproj", "{8F8DF2BB-C7C4-47C8-9B7B-3643929AB9CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{412D9308-8573-426F-87F4-0975B13A8F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{412D9308-8573-426F-87F4-0975B13A8F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{412D9308-8573-426F-87F4-0975B13A8F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F8DF2BB-C7C4-47C8-9B7B-3643929AB9CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F8DF2BB-C7C4-47C8-9B7B-3643929AB9CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F8DF2BB-C7C4-47C8-9B7B-3643929AB9CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F8DF2BB-C7C4-47C8-9B7B-3643929AB9CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

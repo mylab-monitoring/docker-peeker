@@ -30,6 +30,7 @@ namespace MyLab.DockerPeeker
             services.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
             services.AddSingleton<IContainerListProvider, ContainerListProvider>();
             services.AddSingleton<MetricsReportBuilder>();
+            services.AddSingleton<IFileContentProvider, RealFileContentProvider>();
 
 #if DEBUG
             services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);

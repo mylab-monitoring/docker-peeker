@@ -3,12 +3,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MyLab.DockerPeeker.Services;
 using MyLab.Logging;
 
 namespace MyLab.DockerPeeker.Tools
 {
     class CpuAcctStatCmProvider : IContainerMetricsProvider
     {
+        private readonly IFileContentProvider _fileContentProvider;
+
         readonly ContainerMetricType _cpuUserMetricType = new ContainerMetricType(
             "container_cpu_user_jiffies_total",
             "counter",
@@ -19,10 +22,14 @@ namespace MyLab.DockerPeeker.Tools
             "counter",
             "Time is the time the kernel is executing system calls on behalf of the process");
 
+        public CpuAcctStatCmProvider(IFileContentProvider fileContentProvider)
+        {
+            _fileContentProvider = fileContentProvider;
+        }
+
         public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId)
         {
-            var statContent =
-                await File.ReadAllTextAsync($"/sys/fs/cgroup/cpuacct/docker/{containerLongId}/cpuacct.stat");
+            var statContent = await _fileContentProvider.ReadCpuAcct(containerLongId);
             var stat = CpuAcctStat.Parse(statContent);
 
             return new[]

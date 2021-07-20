@@ -10,10 +10,15 @@ namespace MyLab.DockerPeeker.Services
 
     class ContainerMetricsProviderRegistry : IContainerMetricsProviderRegistry
     {
-        private readonly IContainerMetricsProvider[] _providers = 
+        private readonly IContainerMetricsProvider[] _providers;
+
+        public ContainerMetricsProviderRegistry(IFileContentProvider fileContentProvider)
         {
-            new CpuAcctStatCmProvider(),
-        };
+            _providers = new[]
+            {
+                new CpuAcctStatCmProvider(fileContentProvider),
+            };
+        }
 
         public IEnumerable<IContainerMetricsProvider> Provide()
         {
