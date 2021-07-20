@@ -19,22 +19,22 @@ namespace MyLab.DockerPeeker.Services
     {
         public Task<string> ReadCpuAcctStat(string containerLongId)
         {
-            return File.ReadAllTextAsync($"/sys/fs/cgroup/cpuacct/docker/{containerLongId}/cpuacct.stat");
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/cpuacct/docker/{containerLongId}/cpuacct.stat");
         }
 
         public Task<string> ReadMemStat(string containerLongId)
         {
-            return File.ReadAllTextAsync($"/sys/fs/cgroup/memory/docker/{containerLongId}/memory.stat");
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/memory/docker/{containerLongId}/memory.stat");
         }
 
         public Task<string> ReadBlkIoServiceBytesStat(string containerLongId)
         {
-            return File.ReadAllTextAsync($"/sys/fs/cgroup/blkio/docker/{containerLongId}/blkio.throttle.io_service_bytes");
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/blkio/docker/{containerLongId}/blkio.throttle.io_service_bytes");
         }
 
         public Task<string> ReadNetStat(string containerPid)
         {
-            return File.ReadAllTextAsync($"/proc/{containerPid}/net/dev"); 
+            return File.ReadAllTextAsync($"//etc/docker-peeker/proc/{containerPid}/net/dev"); 
         }
     }
 }

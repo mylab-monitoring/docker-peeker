@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using MyLab.Logging;
+using MyLab.Log;
 
 namespace MyLab.DockerPeeker.Tools
 {

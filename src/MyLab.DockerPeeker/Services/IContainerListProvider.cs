@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Tools;
-using MyLab.Logging;
+using MyLab.Log;
+using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Services
 {
@@ -13,9 +15,19 @@ namespace MyLab.DockerPeeker.Services
 
     class ContainerListProvider : IContainerListProvider
     {
+        private readonly DockerCaller _dockerCaller;
+
+        public ContainerListProvider(ILogger<ContainerListProvider> logger)
+        {
+            _dockerCaller = new DockerCaller
+            {
+                Logger = logger.Dsl()
+            };
+        }
+
         public async Task<ContainerLink[]> ProviderActiveContainersAsync()
         {
-            var lines = await DockerCaller.GetActiveContainersAsync();
+            var lines = await _dockerCaller.GetActiveContainersAsync();
             return lines.Select(ContainerLink.Read).ToArray();
         }
     }
