@@ -2,11 +2,8 @@
 
 IF [%1]==[] goto noparam
 
-echo "Build project ..."
-dotnet publish ..\src\MyLab.DockerPeeker\MyLab.DockerPeeker.csproj -c Release -o .\out\app
-
 echo "Build image '%1' and 'latest'..."
-docker build -t mylabtools/docker-peeker:%1 -t mylabtools/docker-peeker:latest .
+docker build -f ./Dockerfile -t mylabtools/docker-peeker:%1 -t mylabtools/docker-peeker:latest ../src
 
 echo "Publish image '%1' ..."
 docker push mylabtools/docker-peeker:%1
