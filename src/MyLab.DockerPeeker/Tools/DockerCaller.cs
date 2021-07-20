@@ -10,8 +10,17 @@ namespace MyLab.DockerPeeker.Tools
     {
         public const string LabelNamePrefix = "docker_label_";
         public const string ContainerIdSeparator = "<id-separator>";
+        public const string ContainerPidSeparator = "<pid-separator>";
         public const string StringStartMarker = "<string-start>";
-        
+
+        public static async Task<string> GetContainerPid(string containerId)
+        {
+            return await Call(
+                    "inspect",
+                    "--format",
+                    "{{ .State.Pid }}",
+                    containerId);
+        }
         public static async Task<string[]> GetActiveContainersAsync()
         {
             var response =
@@ -29,7 +38,7 @@ namespace MyLab.DockerPeeker.Tools
             {
                 "inspect",
                 "--format",
-                StringStartMarker + "{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
+                StringStartMarker + "{{.ID}}" + ContainerIdSeparator + "{{ .State.Pid }}" + ContainerPidSeparator + "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
             };
 
             args.AddRange(ids);

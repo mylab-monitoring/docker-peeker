@@ -9,11 +9,11 @@ namespace MyLab.DockerPeeker.Tools
 {
     public class MetricsBuilder
     {
-        private readonly IContainerLabelsProvider _containerLabelsProvider;
+        private readonly IContainerStateProvider _containerStateProvider;
 
-        public MetricsBuilder(IContainerLabelsProvider containerLabelsProvider)
+        public MetricsBuilder(IContainerStateProvider containerStateProvider)
         {
-            _containerLabelsProvider = containerLabelsProvider;
+            _containerStateProvider = containerStateProvider;
         }
 
         public async Task Build(StringBuilder sb, DockerStatItem[] stat)
@@ -24,15 +24,15 @@ namespace MyLab.DockerPeeker.Tools
                 .Select(s => s.ContainerId)
                 .ToArray();
 
-            var labels = await _containerLabelsProvider.ProvideAsync(cIds);
+            var states = await _containerStateProvider.ProvideAsync(cIds);
 
             foreach (var statItem in stat)
             {
-                AppendStatItem(sb, statItem, labels.FirstOrDefault(l => l.ContainerId == statItem.ContainerId));
+                AppendStatItem(sb, statItem, states.FirstOrDefault(state => state.Id == statItem.ContainerId));
             }
         }
 
-        void AppendStatItem(StringBuilder sb, DockerStatItem item, ContainerLabels containerLabels)
+        void AppendStatItem(StringBuilder sb, DockerStatItem item, ContainerState containerState)
         {
             AppendMetric("container_host_cpu_usage_percentages_total", DockerStatItem.HostCpuUsageDescription, item.HostCpuUsage);
             AppendMetric("container_host_memory_usage_percentages_total", DockerStatItem.HostMemUsageDescription, item.HostMemUsage);
@@ -49,9 +49,9 @@ namespace MyLab.DockerPeeker.Tools
                 sb.AppendLine($"# TYPE {metricName} gauge");
                 sb.Append($"{metricName}{{name=\"{item.ContainerName}\"");
 
-                if (containerLabels != null)
+                if (containerState != null)
                 {
-                    var keyValues = containerLabels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
+                    var keyValues = containerState.Labels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
                     var addLabels = string.Join(',', keyValues);
                     sb.Append("," + addLabels);
                 }
@@ -69,18 +69,6 @@ namespace MyLab.DockerPeeker.Tools
 
                     return new string(newString);
                 }
-
-                //string NormValue(string key)
-                //{
-                //    char[] newString = new char[key.Length];
-
-                //    for (int i = 0; i < key.Length; i++)
-                //    {
-                //        newString[i] = (key[i] != '\"' && key[i] != ',') ? key[i] : '_';
-                //    }
-
-                //    return new string(newString);
-                //}
             }
         }
     }

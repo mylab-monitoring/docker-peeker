@@ -21,7 +21,7 @@ namespace UnitTests
         public async Task ShouldBuild()
         {
             //Arrange
-            var labelsProvider = new TestContainerLabelsProvider();
+            var labelsProvider = new TestContainerStateProvider();
             var mBuilder = new MetricsBuilder(labelsProvider);
             var sb = new StringBuilder();
             var stat = new[]
@@ -58,13 +58,13 @@ namespace UnitTests
             Assert.Contains("container_network_output_bytes_total{name=\"foo\",container_label_bar=\"baz\"} 8.80", strOutput);
         }
 
-        class TestContainerLabelsProvider : IContainerLabelsProvider
+        class TestContainerStateProvider : IContainerStateProvider
         {
-            public Task<ContainerLabels[]> ProvideAsync(string[] containersIds)
+            public Task<ContainerState[]> ProvideAsync(string[] containersIds)
             {
                 return Task.FromResult(new []
                 {
-                    new ContainerLabels("foo", new Dictionary<string, string>
+                    new ContainerState("foo", "321", new Dictionary<string, string>
                     {
                         {"bar", "baz"}
                     }),

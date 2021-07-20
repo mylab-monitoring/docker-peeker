@@ -8,16 +8,16 @@ namespace MyLab.DockerPeeker.Tools
     class ContainerMetricsWriter
     {
         private readonly ContainerLink _containerLink;
-        private readonly ContainerLabels _containerLabels;
+        private readonly ContainerState _containerState;
         private readonly StringBuilder _stringBuilder;
 
         public ContainerMetricsWriter(
-            ContainerLink containerLink, 
-            ContainerLabels containerLabels,
+            ContainerLink containerLink,
+            ContainerState containerState,
             StringBuilder stringBuilder)
         {
             _containerLink = containerLink;
-            _containerLabels = containerLabels;
+            _containerState = containerState;
             _stringBuilder = stringBuilder;
         }
 
@@ -30,9 +30,9 @@ namespace MyLab.DockerPeeker.Tools
             sb.AppendLine($"# TYPE {metric.Type.Name} {metric.Type.Type}");
             sb.Append($"{metric.Type.Name}{{name=\"{_containerLink.Name}\"");
 
-            if (_containerLabels != null && _containerLabels.Count != 0)
+            if (_containerState != null && _containerState.Labels.Count != 0)
             {
-                var keyValues = _containerLabels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
+                var keyValues = _containerState.Labels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
                 var addLabels = string.Join(',', keyValues);
                 sb.Append("," + addLabels);
             }

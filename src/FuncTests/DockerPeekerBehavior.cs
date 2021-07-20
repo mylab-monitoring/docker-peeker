@@ -26,7 +26,7 @@ namespace FuncTests
                 ServiceOverrider = s => s
                     .AddSingleton<IFileContentProvider, TestFileContentProvider>()
                     .AddSingleton<IContainerListProvider, TestContainerListProvider>()
-                    .AddSingleton<IContainerLabelsProvider, TestContainerLabelsProvider>()
+                    .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
             };
         }
 
@@ -110,9 +110,9 @@ namespace FuncTests
         }
     }
 
-    class TestContainerLabelsProvider : IContainerLabelsProvider
+    class TestContainerStateProvider : IContainerStateProvider
     {
-        public Task<ContainerLabels[]> ProvideAsync(string[] containersIds)
+        public Task<ContainerState[]> ProvideAsync(string[] containersIds)
         {
             if (containersIds.Length != 1)
                 throw new InvalidOperationException("Container id should be single");
@@ -126,7 +126,7 @@ namespace FuncTests
 
             return Task.FromResult(new []
             {
-                new ContainerLabels("foo", new Dictionary<string, string>()
+                new ContainerState("foo", "123", new Dictionary<string, string>()
                 {
                     {"label1", "value1"}
                 }), 

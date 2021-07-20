@@ -10,16 +10,16 @@ namespace MyLab.DockerPeeker.Tools
     public class MetricsReportBuilder
     {
         private readonly IContainerListProvider _containerListProvider;
-        private readonly IContainerLabelsProvider _containerLabelsProvider;
+        private readonly IContainerStateProvider _containerStateProvider;
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
 
         public MetricsReportBuilder(
             IContainerListProvider containerListProvider,
-            IContainerLabelsProvider containerLabelsProvider,
+            IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry)
         {
             _containerListProvider = containerListProvider;
-            _containerLabelsProvider = containerLabelsProvider;
+            _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
         }
 
@@ -30,7 +30,7 @@ namespace MyLab.DockerPeeker.Tools
                 .Select(l => l.LongId)
                 .ToArray();
 
-            var labels = await _containerLabelsProvider.ProvideAsync(containerIds);
+            var state = await _containerStateProvider.ProvideAsync(containerIds);
 
             var metricsProviders = 
                 _containerMetricsProviderRegistry
@@ -39,7 +39,7 @@ namespace MyLab.DockerPeeker.Tools
 
             foreach (var containerLink in containerLinks)
             {
-                var containerLabels = labels.FirstOrDefault(lc => lc.ContainerId == containerLink.LongId);
+                var containerLabels = state.FirstOrDefault(st => st.Id == containerLink.LongId);
 
                 var writer = new ContainerMetricsWriter(
                     containerLink, 
