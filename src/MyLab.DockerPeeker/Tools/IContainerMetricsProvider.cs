@@ -5,6 +5,6 @@ namespace MyLab.DockerPeeker.Tools
 {
     public interface IContainerMetricsProvider
     {
-        Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId);
+        Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId, string pid);
     }
 }

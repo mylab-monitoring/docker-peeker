@@ -11,6 +11,8 @@ namespace MyLab.DockerPeeker.Services
         Task<string> ReadCpuAcctStat(string containerLongId);
         Task<string> ReadMemStat(string containerLongId);
         Task<string> ReadBlkIoServiceBytesStat(string containerLongId);
+
+        Task<string> ReadNetStat(string containerPid);
     }
 
     class RealFileContentProvider : IFileContentProvider
@@ -28,6 +30,11 @@ namespace MyLab.DockerPeeker.Services
         public Task<string> ReadBlkIoServiceBytesStat(string containerLongId)
         {
             return File.ReadAllTextAsync($"/sys/fs/cgroup/blkio/docker/{containerLongId}/blkio.throttle.io_service_bytes");
+        }
+
+        public Task<string> ReadNetStat(string containerPid)
+        {
+            return File.ReadAllTextAsync($"/proc/{containerPid}/net/dev"); 
         }
     }
 }

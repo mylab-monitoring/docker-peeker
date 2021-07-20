@@ -27,7 +27,7 @@ namespace MyLab.DockerPeeker.Tools
         {
             var containerLinks = await _containerListProvider.ProviderActiveContainersAsync();
 
-            var state = await _containerStateProvider.ProvideAsync(containerLinks);
+            var states = await _containerStateProvider.ProvideAsync(containerLinks);
 
             var metricsProviders = 
                 _containerMetricsProviderRegistry
@@ -36,16 +36,16 @@ namespace MyLab.DockerPeeker.Tools
 
             foreach (var containerLink in containerLinks)
             {
-                var containerLabels = state.FirstOrDefault(st => st.Id == containerLink.LongId);
+                var containerState = states.FirstOrDefault(st => st.Id == containerLink.LongId);
 
                 var writer = new ContainerMetricsWriter(
                     containerLink, 
-                    containerLabels,
+                    containerState,
                     reportStringBuilder);
 
                 foreach (var metricsProvider in metricsProviders)
                 {
-                    var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId);
+                    var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId, containerState?.Pid);
 
                     foreach (var containerMetric in containerMetrics)
                     {

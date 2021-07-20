@@ -38,7 +38,7 @@ namespace MyLab.DockerPeeker.Tools
             _fileContentProvider = fileContentProvider;
         }
 
-        public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId)
+        public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId, string pid)
         {
             var statContent = await _fileContentProvider.ReadMemStat(containerLongId);
             var parser = StatParser.Create(statContent);

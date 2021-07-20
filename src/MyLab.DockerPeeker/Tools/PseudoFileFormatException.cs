@@ -11,5 +11,13 @@ namespace MyLab.DockerPeeker.Tools
         {
             
         }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="PseudoFileFormatException"/>
+        /// </summary>
+        public PseudoFileFormatException(string msg, Exception inner) : base(msg, inner)
+        {
+
+        }
     }
 }

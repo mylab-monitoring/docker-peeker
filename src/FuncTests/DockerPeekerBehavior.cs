@@ -105,6 +105,23 @@ namespace FuncTests
         }
 
         [Fact]
+        public async Task ShouldProvideNetStat()
+        {
+            //Arrange
+            var client = _api.StartWithProxy();
+
+            //Act
+            var metrics = (await client.GetMetrics())
+                .Split('\n')
+                .Select(s => s.Trim())
+                .ToArray();
+
+            //Assert
+            Assert.Contains("container_net_receive_bytes_total{name=\"bar\",container_label_label_pid=\"123\"} 33373764", metrics);
+            Assert.Contains("container_net_transmit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 33373774", metrics);
+        }
+
+        [Fact]
         public async Task ShouldExpireContainerState()
         {
             //Arrange
@@ -252,6 +269,21 @@ namespace FuncTests
             .AppendLine("253:0 Async 119209984")
             .AppendLine("253:0 Total 119209984")
             .AppendLine("Total 263622656")
+                .ToString();
+
+            return Task.FromResult(res);
+        }
+
+        public Task<string> ReadNetStat(string containerPid)
+        {
+            if (containerPid != "123" && containerPid != "124")
+                throw new InvalidOperationException("Met unexpected container id");
+
+            var res = new StringBuilder()
+                .AppendLine("Inter-|   Receive                                                |  Transmit")
+                .AppendLine("  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed")
+                .AppendLine("     lo: 33373754  320402    1    2    3     4          5         6 33373754  320402    7    8    9     1       2          3")
+                .AppendLine("     eth3: 10  320402    1    2    3     4          5         6 20  320402    7    8    9     1       2          3")
                 .ToString();
 
             return Task.FromResult(res);

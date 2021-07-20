@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using MyLab.Logging;
@@ -89,6 +90,79 @@ namespace MyLab.DockerPeeker.Tools
             }
 
             return list.ToArray();
+        }
+
+        public NetParam[] ExtractNetParams()
+        {
+            if(_lines.Length<=2)
+                return new NetParam[0];
+
+            return _lines.Skip(2).Where(s => !string.IsNullOrWhiteSpace(s)).Select(ParseNetStatLine).ToArray();
+        }
+
+        private NetParam ParseNetStatLine(string netStatLine)
+        {
+            var items = netStatLine
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .ToArray();
+
+            if(items.Length != 17)
+                throw new PseudoFileFormatException("Net stat line items wrong count")
+                    .AndFactIs("Stat line", netStatLine)
+                    .AndFactIs("Detected count", items.Length);
+
+            try
+            {
+                return new NetParam
+                {
+                    Interface = items[0].TrimEnd(':'),
+                    ReceiveBytes = long.Parse(items[1]),
+                    ReceivePackets = long.Parse(items[2]),
+                    ReceiveErrors = long.Parse(items[3]),
+                    ReceiveDrop = long.Parse(items[4]),
+                    ReceiveFifo = long.Parse(items[5]),
+                    ReceiveFrame = long.Parse(items[6]),
+                    ReceiveCompressed = long.Parse(items[7]),
+                    ReceiveMulticast = long.Parse(items[8]),
+                    TransmitBytes = long.Parse(items[9]),
+                    TransmitPackets = long.Parse(items[10]),
+                    TransmitErrors = long.Parse(items[11]),
+                    TransmitDrop = long.Parse(items[12]),
+                    TransmitFifo = long.Parse(items[13]),
+                    TransmitColls = long.Parse(items[14]),
+                    TransmitCarrier = long.Parse(items[15]),
+                    TransmitCompressed = long.Parse(items[16])
+                };
+            }
+            catch (Exception e)
+            {
+                throw new PseudoFileFormatException("Net stat line parsing error", e)
+                    .AndFactIs("Stat line", netStatLine);
+            }
+        }
+
+        public class NetParam
+        {
+            public string Interface { get; set; }
+
+            public long ReceiveBytes { get; set; }
+            public long ReceivePackets { get; set; }
+            public long ReceiveErrors { get; set; }
+            public long ReceiveDrop { get; set; }
+            public long ReceiveFifo { get; set; }
+            public long ReceiveFrame { get; set; }
+            public long ReceiveCompressed { get; set; }
+            public long ReceiveMulticast { get; set; }
+
+            public long TransmitBytes { get; set; }
+            public long TransmitPackets { get; set; }
+            public long TransmitErrors { get; set; }
+            public long TransmitDrop { get; set; }
+            public long TransmitFifo { get; set; }
+            public long TransmitColls { get; set; }
+            public long TransmitCarrier { get; set; }
+            public long TransmitCompressed { get; set; }
+
         }
 
         public class IdentifiableParam
