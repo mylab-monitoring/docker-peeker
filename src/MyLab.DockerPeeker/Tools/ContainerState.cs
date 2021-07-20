@@ -33,7 +33,7 @@ namespace MyLab.DockerPeeker.Tools
             int indexOfDockerPIdSplitter = normOutput.IndexOf(DockerCaller.ContainerPidSeparator, StringComparison.InvariantCulture);
             if (indexOfDockerPIdSplitter == -1)
                 throw new FormatException("Cant find container pid separator: " + normOutput);
-            string containerPid = normOutput.Substring(indexOfDockerIdSplitter+1, indexOfDockerPIdSplitter-indexOfDockerIdSplitter+1);
+            string containerPid = normOutput.Substring(indexOfDockerIdSplitter+ DockerCaller.ContainerIdSeparator.Length, indexOfDockerPIdSplitter- (indexOfDockerIdSplitter + DockerCaller.ContainerIdSeparator.Length));
             
             string pairsStr = normOutput.Substring(indexOfDockerPIdSplitter + DockerCaller.ContainerPidSeparator.Length).Trim();
 

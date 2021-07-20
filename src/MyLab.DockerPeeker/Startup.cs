@@ -26,7 +26,6 @@ namespace MyLab.DockerPeeker
             services.AddControllers(c => c.AddExceptionProcessing());
             services.AddSingleton<ContainersStateSource>();
             services.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
-            services.AddSingleton<IDockerStatProvider, DockerStatProvider>();
             services.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
             services.AddSingleton<IContainerListProvider, ContainerListProvider>();
             services.AddSingleton<MetricsReportBuilder>();

@@ -23,10 +23,4 @@
     <ProjectReference Include="..\MyLab.DockerPeeker\MyLab.DockerPeeker.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="real-metrics.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

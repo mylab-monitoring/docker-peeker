@@ -56,8 +56,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_cpu_user_jiffies{name=\"bar\",container_label_label1=\"value1\"} 8313", metrics);
-            Assert.Contains("container_cpu_system_jiffies{name=\"bar\",container_label_label1=\"value1\"} 10804",
+            Assert.Contains("container_cpu_user_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 8313", metrics);
+            Assert.Contains("container_cpu_system_jiffies_total{name=\"bar\",container_label_label1=\"value1\"} 10804",
                 metrics);
         }
 
