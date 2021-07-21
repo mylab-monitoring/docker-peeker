@@ -7,24 +7,21 @@ namespace MyLab.DockerPeeker.Tools
     class CpuAcctStatCmProvider : IContainerMetricsProvider
     {
         private readonly IFileContentProvider _fileContentProvider;
-
-        readonly ContainerMetricType _cpuUserMetricType = new ContainerMetricType
-        {
-            Name = "container_cpu_user_jiffies_total",
-            Type = "counter",
-            Description = "Time is the amount of time a process has direct control of the CPU, executing process code"
-        };
-
-        readonly ContainerMetricType _cpuSystemMetricType = new ContainerMetricType
-        {
-            Name = "container_cpu_system_jiffies_total",
-            Type = "counter",
-            Description = "Time is the time the kernel is executing system calls on behalf of the process"
-        };
+        private readonly ContainerMetricType _cpuUserMetricType;
+        readonly ContainerMetricType _cpuSystemMetricType;
 
         public CpuAcctStatCmProvider(IFileContentProvider fileContentProvider)
         {
             _fileContentProvider = fileContentProvider;
+
+            var cpuMetricType = new ContainerMetricType
+            {
+                Name = "container_cpu_jiffies_total",
+                Type = "counter"
+            };
+
+            _cpuUserMetricType = cpuMetricType.AddLabel("mode", "user", "Time is the amount of time a process has direct control of the CPU, executing process code");
+            _cpuSystemMetricType = cpuMetricType.AddLabel("mode", "system", "Time is the time the kernel is executing system calls on behalf of the process");
         }
 
         public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId, string pid)

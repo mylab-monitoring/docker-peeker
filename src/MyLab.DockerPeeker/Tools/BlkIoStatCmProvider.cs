@@ -8,25 +8,21 @@ namespace MyLab.DockerPeeker.Tools
     class BlkIoStatCmProvider : IContainerMetricsProvider
     {
         private readonly IFileContentProvider _fileContentProvider;
-
-        private readonly ContainerMetricType _blkReadMetricType = new ContainerMetricType
-        {
-            Name = "container_blk_read_bytes_total",
-            Type = "counter",
-            Description = "Report total input bytes"
-        };
-
-        readonly ContainerMetricType _blkWriteMetricType = new ContainerMetricType
-        {
-            Name = "container_blk_writes_bytes_total",
-            Type = "counter",
-            Description = "Report total output bytes"
-
-        };
+        private readonly ContainerMetricType _blkReadMetricType;
+        private readonly ContainerMetricType _blkWriteMetricType;
 
         public BlkIoStatCmProvider(IFileContentProvider fileContentProvider)
         {
             _fileContentProvider = fileContentProvider;
+
+            var blkMetricType = new ContainerMetricType
+            {
+                Name = "container_blk_bytes_total",
+                Type = "counter",
+            };
+
+            _blkReadMetricType = blkMetricType.AddLabel("direction", "read", "Report total input bytes");
+            _blkWriteMetricType = blkMetricType.AddLabel("direction", "write", "Report total output bytes");
         }
 
         public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId, string pid)

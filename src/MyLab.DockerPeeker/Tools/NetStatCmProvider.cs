@@ -9,25 +9,22 @@ namespace MyLab.DockerPeeker.Tools
     {
         private readonly IFileContentProvider _fileContentProvider;
 
-        readonly ContainerMetricType _netReceiveMetricType = new ContainerMetricType
-        {
-            Name = "container_net_receive_bytes_total",
-            Type = "counter",
-            Description = "Report total received bytes"
+        private readonly ContainerMetricType _netReceiveMetricType;
 
-        };
-
-        readonly ContainerMetricType _netTransmitMetricType = new ContainerMetricType
-        {
-            Name = "container_net_transmit_bytes_total",
-            Type = "counter",
-            Description = "Report total transmitted bytes"
-
-        };
+        private readonly ContainerMetricType _netTransmitMetricType;
 
         public NetStatCmProvider(IFileContentProvider fileContentProvider)
         {
             _fileContentProvider = fileContentProvider;
+
+            var netReceiveMetricType = new ContainerMetricType
+            {
+                Name = "container_net_bytes_total",
+                Type = "counter"
+            };
+
+            _netReceiveMetricType = netReceiveMetricType.AddLabel("direction", "receive", "Report total received bytes");
+            _netTransmitMetricType = netReceiveMetricType.AddLabel("direction", "transmit", "Report total transmitted bytes");
         }
 
         public async Task<IEnumerable<ContainerMetric>> ProvideAsync(string containerLongId, string pid)

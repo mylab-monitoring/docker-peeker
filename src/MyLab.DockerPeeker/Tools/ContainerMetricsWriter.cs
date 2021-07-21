@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using MyLab.DockerPeeker.Services;
@@ -30,9 +31,36 @@ namespace MyLab.DockerPeeker.Tools
             sb.AppendLine($"# TYPE {metric.Type.Name} {metric.Type.Type}");
             sb.Append($"{metric.Type.Name}{{name=\"{_containerLink.Name}\"");
 
-            if (_containerState != null && _containerState.Labels.Count != 0)
+            var labels = new Dictionary<string,string>();
+
+            if (metric.Type.Labels != null)
             {
-                var keyValues = _containerState.Labels.Select(kv => $"container_label_{NormKey(kv.Key)}=\"{kv.Value}\"");
+                foreach (var typeLabel in metric.Type.Labels)
+                {
+                    labels.Add(typeLabel.Key, typeLabel.Value);
+                }
+            }
+
+            if (_containerState?.Labels != null)
+            {
+                foreach (var stateLabel in _containerState?.Labels)
+                {
+                    var key = "container_label_" + NormKey(stateLabel.Key);
+                    if (labels.ContainsKey(key))
+                    {
+                        labels[key] = stateLabel.Value;
+                    }
+                    else
+                    {
+                        labels.Add(key, stateLabel.Value);
+                    }
+                }
+            }
+
+
+            if (labels.Count != 0)
+            {
+                var keyValues = labels.Select(kv => $"{kv.Key}=\"{kv.Value}\"");
                 var addLabels = string.Join(',', keyValues);
                 sb.Append("," + addLabels);
             }

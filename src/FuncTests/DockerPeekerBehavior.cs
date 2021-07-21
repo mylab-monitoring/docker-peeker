@@ -56,8 +56,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_cpu_user_jiffies_total{name=\"bar\",container_label_label_pid=\"123\"} 8313", metrics);
-            Assert.Contains("container_cpu_system_jiffies_total{name=\"bar\",container_label_label_pid=\"123\"} 10804",
+            Assert.Contains("container_cpu_jiffies_total{name=\"bar\",mode=\"user\",container_label_label_pid=\"123\"} 8313", metrics);
+            Assert.Contains("container_cpu_jiffies_total{name=\"bar\",mode=\"system\",container_label_label_pid=\"123\"} 10804",
                 metrics);
         }
 
@@ -74,17 +74,11 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_mem_swap_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics);
-            Assert.Contains("container_mem_cache_bytes{name=\"bar\",container_label_label_pid=\"123\"} 11492564992",
-                metrics);
-            Assert.Contains("container_mem_rss_bytes{name=\"bar\",container_label_label_pid=\"123\"} 1930993664",
-                metrics);
-            Assert.Contains(
-                "container_mem_limit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 9223372036854775807",
-                metrics);
-            Assert.Contains(
-                "container_memsw_limit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 9223372036854775807",
-                metrics);
+            Assert.Contains("container_mem_bytes{name=\"bar\",type=\"swap\",container_label_label_pid=\"123\"} 0", metrics);
+            Assert.Contains("container_mem_bytes{name=\"bar\",type=\"cache\",container_label_label_pid=\"123\"} 11492564992", metrics);
+            Assert.Contains("container_mem_bytes{name=\"bar\",type=\"rss\",container_label_label_pid=\"123\"} 1930993664", metrics);
+            Assert.Contains("container_mem_limit_bytes{name=\"bar\",type=\"ram\",container_label_label_pid=\"123\"} 9223372036854775807", metrics);
+            Assert.Contains("container_mem_limit_bytes{name=\"bar\",type=\"ramswap\",container_label_label_pid=\"123\"} 9223372036854775807", metrics);
         }
 
         [Fact]
@@ -100,8 +94,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_blk_read_bytes_total{name=\"bar\",container_label_label_pid=\"123\"} 263622656", metrics);
-            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics);
+            Assert.Contains("container_blk_bytes_total{name=\"bar\",direction=\"read\",container_label_label_pid=\"123\"} 263622656", metrics);
+            Assert.Contains("container_blk_bytes_total{name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 0", metrics);
         }
 
         [Fact]
@@ -117,8 +111,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_net_receive_bytes_total{name=\"bar\",container_label_label_pid=\"123\"} 33373764", metrics);
-            Assert.Contains("container_net_transmit_bytes{name=\"bar\",container_label_label_pid=\"123\"} 33373774", metrics);
+            Assert.Contains("container_net_bytes_total{name=\"bar\",direction=\"receive\",container_label_label_pid=\"123\"} 33373764", metrics);
+            Assert.Contains("container_net_bytes_total{name=\"bar\",direction=\"transmit\",container_label_label_pid=\"123\"} 33373774", metrics);
         }
 
         [Fact]
@@ -139,8 +133,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"123\"} 0", metrics1);
-            Assert.Contains("container_blk_writes_bytes{name=\"bar\",container_label_label_pid=\"124\"} 0", metrics2);
+            Assert.Contains("container_blk_bytes_total{name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 0", metrics1);
+            Assert.Contains("container_blk_bytes_total{name=\"bar\",direction=\"write\",container_label_label_pid=\"124\"} 0", metrics2);
         }
 
         public void Dispose()
