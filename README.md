@@ -62,24 +62,73 @@ services:
 
 ### Метрики контейнеров
 
-По каждому контейнеру собираются следующие метрики:
+#### `container_cpu_jiffies_total` (counter)
 
-| Имя                                             | Тип   | Описание                                                     |
-| ----------------------------------------------- | ----- | ------------------------------------------------------------ |
-| `container_host_cpu_usage_percentages_total`    | gauge | The percentage of the host’s CPU the container is using      |
-| `container_host_memory_usage_percentages_total` | gauge | The percentage of the host’s memory the container is using   |
-| `container_memory_usage_bytes_total`            | gauge | The total memory the container is using                      |
-| `container_memory_limit_bytes_total`            | gauge | The total amount of memory it is allowed to use              |
-| `container_block_rx_bytes_total`                | gauge | The amount of data the container has read from block devices on the host |
-| `container_block_tx_bytes_total`                | gauge | The amount of data the container has written to block devices on the host |
-| `container_network_rx_bytes_total`              | gauge | The amount of data the container received over its network interface |
-| `container_network_tx_bytes_total`              | gauge | The amount of data the container has sent over its network interface |
+Счётчик, отражающий использование времени процессора. Измеряется в [jiffy](https://man7.org/linux/man-pages/man7/time.7.html). 
 
-Каждая метрика снабжается следующими меткой имени контейнера`name`.
+Метка `mode` определяет режим, в котором работает процессор в контексте контейнера:
 
-### Метки контейнеров
+* `user` - time is the amount of time a process has direct control of the CPU, executing process code;
+* `system` - time is the time the kernel is executing system calls on behalf of the process.
 
-Метрики контейнеров снабжаются метками, соответствующими меткам контейнеров. 
+Количество единиц `jiffy` в секунде можно определить на сервере с помощью команды:
+
+```bash
+> getconf CLK_TCK
+100
+```
+
+Обычно, это значение - `100`.
+
+#### `container_mem_bytes`(gauge)
+
+Показатель, отражающий объём памяти, используемый контейнером.
+
+Метка `type` определяет тип потребляемой памяти:
+
+* `rss` - the amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps;
+
+- `swap` - the amount of swap currently used by the processes in this cgroup;
+- `cache` - he amount of memory used by the processes of this control group that can be associated precisely with a block on a block device.
+
+#### `container_mem_limit_bytes` (gauge)
+
+Показатель, отражающий ограничение объёма памяти для контейнера.
+
+Метка `type` отражает тип ограничения:
+
+* `ram` - indicates the maximum amount of physical memory that can be used by the processes of this control group;
+* `ramswap` - indicates the maximum amount of RAM+swap that can be used by the processes of this control group.
+
+#### `container_blk_bytes_total` (counter)
+
+Счётчик, отражающий объём данных, переданных при операциях с блочными устройствами хранения.
+
+Метка `direction` определяет направление учитываемого трафика:
+
+* `read` - report total input bytes;
+* `write` - report total output bytes.
+
+#### `container_net_bytes_total` (counter)
+
+Счётчик, отражающий объём данных, переданный через сетевые устройства.
+
+Метка `direction` определяет направление учитываемого трафика:
+
+* `receive` - report total received bytes;
+* `transmit` - report total transmitted bytes.
+
+### Другие метки 
+
+#### Обзор меток
+
+Каждая метрика снабжается следующими метками:
+
+* `name` - меткой имени контейнера .
+
+* метки, соответствующие меткам контейнеров. 
+
+#### Метки контейнеров
 
 Имена меток подвергаются следующим изменениям:
 
