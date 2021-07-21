@@ -9,15 +9,20 @@ namespace MyLab.DockerPeeker.Tools
     {
         private readonly IFileContentProvider _fileContentProvider;
 
-        readonly ContainerMetricType _blkReadMetricType = new ContainerMetricType(
-            "container_blk_read_bytes_total",
-            "counter",
-            "Report total input bytes");
+        private readonly ContainerMetricType _blkReadMetricType = new ContainerMetricType
+        {
+            Name = "container_blk_read_bytes_total",
+            Type = "counter",
+            Description = "Report total input bytes"
+        };
 
-        readonly ContainerMetricType _blkWriteMetricType = new ContainerMetricType(
-            "container_blk_writes_bytes",
-            "counter",
-            "Report total output bytes");
+        readonly ContainerMetricType _blkWriteMetricType = new ContainerMetricType
+        {
+            Name = "container_blk_writes_bytes_total",
+            Type = "counter",
+            Description = "Report total output bytes"
+
+        };
 
         public BlkIoStatCmProvider(IFileContentProvider fileContentProvider)
         {

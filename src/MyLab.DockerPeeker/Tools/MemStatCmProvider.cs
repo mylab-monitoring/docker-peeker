@@ -8,30 +8,37 @@ namespace MyLab.DockerPeeker.Tools
     {
         private readonly IFileContentProvider _fileContentProvider;
 
-        readonly ContainerMetricType _memSwapMetricType = new ContainerMetricType(
-            "container_mem_swap_bytes",
-            "gauge",
-            "The amount of swap currently used by the processes in this cgroup");
+        readonly ContainerMetricType _memSwapMetricType = new ContainerMetricType
+        {
+            Name = "container_mem_swap_bytes",
+            Type = "gauge",
+            Description = "The amount of swap currently used by the processes in this cgroup"
 
-        readonly ContainerMetricType _memCacheMetricType = new ContainerMetricType(
-            "container_mem_cache_bytes",
-            "gauge",
-            "The amount of memory used by the processes of this control group that can be associated precisely with a block on a block device");
+        };
 
-        readonly ContainerMetricType _memRssMetricType = new ContainerMetricType(
-            "container_mem_rss_bytes",
-            "gauge",
-            "The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps");
+        readonly ContainerMetricType _memCacheMetricType = new ContainerMetricType{
+            Name = "container_mem_cache_bytes",
+            Type = "gauge",
+            Description = "The amount of memory used by the processes of this control group that can be associated precisely with a block on a block device"
+        };
 
-        readonly ContainerMetricType _memLimitMetricType = new ContainerMetricType(
-            "container_mem_limit_bytes",
-            "gauge",
-            "Indicates the maximum amount of physical memory that can be used by the processes of this control group");
+        readonly ContainerMetricType _memRssMetricType = new ContainerMetricType{
+            Name = "container_mem_rss_bytes",
+            Type = "gauge",
+            Description = "The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps"
+        };
 
-        readonly ContainerMetricType _memSwLimitMetricType = new ContainerMetricType(
-            "container_memsw_limit_bytes",
-            "gauge",
-            "Indicates the maximum amount of RAM+swap that can be used by the processes of this control group");
+        readonly ContainerMetricType _memLimitMetricType = new ContainerMetricType{
+            Name = "container_mem_limit_bytes",
+            Type = "gauge",
+            Description = "Indicates the maximum amount of physical memory that can be used by the processes of this control group"
+        };
+
+        readonly ContainerMetricType _memSwLimitMetricType = new ContainerMetricType{
+            Name = "container_memsw_limit_bytes",
+            Type = "gauge",
+            Description = "Indicates the maximum amount of RAM+swap that can be used by the processes of this control group"
+        };
 
         public MemStatCmProvider(IFileContentProvider fileContentProvider)
         {

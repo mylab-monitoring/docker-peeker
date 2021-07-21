@@ -9,15 +9,21 @@ namespace MyLab.DockerPeeker.Tools
     {
         private readonly IFileContentProvider _fileContentProvider;
 
-        readonly ContainerMetricType _netReceiveMetricType = new ContainerMetricType(
-            "container_net_receive_bytes_total",
-            "counter",
-            "Report total received bytes");
+        readonly ContainerMetricType _netReceiveMetricType = new ContainerMetricType
+        {
+            Name = "container_net_receive_bytes_total",
+            Type = "counter",
+            Description = "Report total received bytes"
 
-        readonly ContainerMetricType _netTransmitMetricType = new ContainerMetricType(
-            "container_net_transmit_bytes",
-            "counter",
-            "Report total transmitted bytes");
+        };
+
+        readonly ContainerMetricType _netTransmitMetricType = new ContainerMetricType
+        {
+            Name = "container_net_transmit_bytes_total",
+            Type = "counter",
+            Description = "Report total transmitted bytes"
+
+        };
 
         public NetStatCmProvider(IFileContentProvider fileContentProvider)
         {
