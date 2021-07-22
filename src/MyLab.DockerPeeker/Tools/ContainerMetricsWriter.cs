@@ -29,7 +29,7 @@ namespace MyLab.DockerPeeker.Tools
             if(!string.IsNullOrEmpty(metric.Type.Description))
                 sb.AppendLine($"# HELP {metric.Type.Description}");
             sb.AppendLine($"# TYPE {metric.Type.Name} {metric.Type.Type}");
-            sb.Append($"{metric.Type.Name}{{name=\"{_containerLink.Name}\"");
+            sb.Append($"{metric.Type.Name}{{container_name=\"{_containerLink.Name}\"");
 
             var labels = new Dictionary<string,string>();
 
