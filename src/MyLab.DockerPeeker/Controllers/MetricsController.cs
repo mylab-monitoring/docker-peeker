@@ -13,28 +13,23 @@ namespace MyLab.DockerPeeker.Controllers
     public class MetricsController : ControllerBase
     {
         private readonly ILogger<MetricsController> _logger;
-        private readonly IDockerStatProvider _dockerStatProvider;
-        private readonly MetricsBuilder _metricBuilder;
-
-        public MetricsController(ILogger<MetricsController> logger, 
-            IDockerStatProvider dockerStatProvider,
-            IContainerLabelsProvider containerLabelsProvider)
+        private readonly MetricsReportBuilder _metricsReportBuilder;
+        
+        public MetricsController(ILogger<MetricsController> logger,
+            MetricsReportBuilder metricsReportBuilder)
         {
             _logger = logger;
-            _dockerStatProvider = dockerStatProvider;
-            _metricBuilder = new MetricsBuilder(containerLabelsProvider);
+            _metricsReportBuilder = metricsReportBuilder;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var stat = await _dockerStatProvider.Provide();
+            var reportStringBuilder=  new StringBuilder();
 
-            var sb= new StringBuilder();
+            await _metricsReportBuilder.WriteReportAsync(reportStringBuilder);
 
-            await _metricBuilder.Build(sb, stat);
-
-            return Ok(sb.ToString());
+            return Ok(reportStringBuilder.ToString());
         }
     }
 }
