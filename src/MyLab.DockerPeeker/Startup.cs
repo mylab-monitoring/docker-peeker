@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Services;
+using MyLab.DockerPeeker.Tools;
 using MyLab.WebErrors;
 
 namespace MyLab.DockerPeeker
@@ -23,10 +24,13 @@ namespace MyLab.DockerPeeker
         {
             services.AddLogging(b => b.AddConsole());
             services.AddControllers(c => c.AddExceptionProcessing());
-            services.AddSingleton<ContainersLabelsSource>();
-            services.AddSingleton<IContainerLabelsProvider, DockerContainerLabelsProvider>();
-            services.AddSingleton<IDockerStatProvider, DockerStatProvider>();
+            services.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
+            services.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
+            services.AddSingleton<IContainerListProvider, ContainerListProvider>();
+            services.AddSingleton<MetricsReportBuilder>();
+            services.AddSingleton<IFileContentProvider, RealFileContentProvider>();
 
+            services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
 #if DEBUG
             services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
 #endif

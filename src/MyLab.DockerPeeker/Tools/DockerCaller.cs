@@ -1,39 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MyLab.Log;
+using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Tools
 {
-    static class DockerCaller
+    class DockerCaller
     {
         public const string LabelNamePrefix = "docker_label_";
         public const string ContainerIdSeparator = "<id-separator>";
+        public const string ContainerPidSeparator = "<pid-separator>";
         public const string StringStartMarker = "<string-start>";
 
-        public static async Task<string[]> GetStats()
+        public IDslLogger Logger { get; set; }
+
+        public async Task<string[]> GetActiveContainersAsync()
         {
             var response =
                 await Call(
-                    "stats",
-                    "--no-stream",
+                    "ps",
                     "--no-trunc",
                     "--format",
-                    StringStartMarker + "{{.ID}}\\t{{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\\t{{.MemPerc}}\\t{{.BlockIO}}\\t{{.NetIO}}");
-            return response
-                .Replace("\n", " ")
-                .Replace(StringStartMarker, "\n")
-                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
+                    "{{.ID}}\t{{.Names}}\t{{.CreatedAt}}");
+            return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static async Task<string[]> GetLabels(string[] ids)
+        public async Task<string[]> GetStates(string[] ids)
         {
             var args = new List<string>
             {
                 "inspect",
                 "--format",
-                StringStartMarker + "{{.ID}}" + ContainerIdSeparator +  "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
+                StringStartMarker + "{{.ID}}" + ContainerIdSeparator + "{{ .State.Pid }}" + ContainerPidSeparator + "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
             };
 
             args.AddRange(ids);
@@ -82,7 +85,9 @@ namespace MyLab.DockerPeeker.Tools
             await proc.WaitForExitAsync();
 
             if(proc.ExitCode != 0)
-                throw new InvalidOperationException(err.ToString());
+                throw new InvalidOperationException(err.ToString())
+                    .AndFactIs("proc-fn", startInfo.FileName)
+                    .AndFactIs("proc-params", string.Join(" ", startInfo.ArgumentList.Select(a => $"\"{a}\"")));
 
             return res.ToString();
         }

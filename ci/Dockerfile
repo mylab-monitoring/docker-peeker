@@ -1,5 +1,18 @@
-FROM mylabtools/docker-net:1.0.0
+FROM mylabtools/docker-net:1.0.0 AS base
+WORKDIR /app
+EXPOSE 80
 
-ADD ./out/app /app/
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["MyLab.DockerPeeker/MyLab.DockerPeeker.csproj", "MyLab.DockerPeeker/"]
+RUN dotnet restore "MyLab.DockerPeeker/MyLab.DockerPeeker.csproj"
+COPY . .
+WORKDIR "/src/MyLab.DockerPeeker"
+RUN dotnet build "MyLab.DockerPeeker.csproj" -c Release -o /app/build
 
-ENTRYPOINT cd /app && dotnet MyLab.DockerPeeker.dll
+FROM build AS publish
+RUN dotnet publish "MyLab.DockerPeeker.csproj" -c Release -o /app/publish
+
+FROM base AS final
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "MyLab.DockerPeeker.dll"]
