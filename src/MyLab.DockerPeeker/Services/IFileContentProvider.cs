@@ -34,7 +34,7 @@ namespace MyLab.DockerPeeker.Services
 
         public Task<string> ReadNetStat(string containerPid)
         {
-            return File.ReadAllTextAsync($"//etc/docker-peeker/proc/{containerPid}/net/dev"); 
+            return File.ReadAllTextAsync($"/etc/docker-peeker/proc/{containerPid}/net/dev"); 
         }
     }
 }

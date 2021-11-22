@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Services;
+using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Tools
 {
@@ -12,15 +14,18 @@ namespace MyLab.DockerPeeker.Tools
         private readonly IContainerListProvider _containerListProvider;
         private readonly IContainerStateProvider _containerStateProvider;
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
+        private readonly IDslLogger _log;
 
         public MetricsReportBuilder(
             IContainerListProvider containerListProvider,
             IContainerStateProvider containerStateProvider,
-            IContainerMetricsProviderRegistry containerMetricsProviderRegistry)
+            IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
+            ILogger<MetricsReportBuilder> logger = null)
         {
             _containerListProvider = containerListProvider;
             _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
+            _log = logger?.Dsl();
         }
 
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
@@ -45,11 +50,20 @@ namespace MyLab.DockerPeeker.Tools
 
                 foreach (var metricsProvider in metricsProviders)
                 {
-                    var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId, containerState?.Pid);
-
-                    foreach (var containerMetric in containerMetrics)
+                    try
                     {
-                        writer.Write(containerMetric);
+                        var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId, containerState?.Pid);
+
+                        foreach (var containerMetric in containerMetrics)
+                        {
+                            writer.Write(containerMetric);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _log?.Error("Container metrics providing error", e)
+                            .AndFactIs("container-link", containerLink)
+                            .Write();
                     }
                 }
             }
