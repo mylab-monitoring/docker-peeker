@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace MyLab.DockerPeeker.Services
 {
-    public interface IFileContentProvider
+    public interface IFileContentProviderV1
     {
         Task<string> ReadCpuStat(string containerLongId);
         Task<string> ReadMemStat(string containerLongId);
@@ -12,7 +12,7 @@ namespace MyLab.DockerPeeker.Services
         Task<string> ReadNetStat(string containerPid);
     }
 
-    class RealFileContentProvider : IFileContentProvider
+    class FileContentProviderV1 : IFileContentProviderV1
     {
         public Task<string> ReadCpuStat(string containerLongId)
         {

@@ -24,7 +24,7 @@ namespace FuncTests
             {
                 Output = output,
                 ServiceOverrider = s => s
-                    .AddSingleton<IFileContentProvider, TestFileContentProvider>()
+                    .AddSingleton<IFileContentProviderV1, TestFileContentProvider>()
                     .AddSingleton<IContainerListProvider, TestContainerListProvider>()
                     .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
                     .AddLogging(l => l
@@ -191,26 +191,26 @@ namespace FuncTests
         }
     }
 
-    class TestFileContentProvider : IFileContentProvider
+    class TestFileContentProvider : IFileContentProviderV1
     {
         public Task<string> ReadCpuStat(string containerLongId)
         {
-            return File.ReadAllTextAsync("v1/cpustat.txt");
+            return File.ReadAllTextAsync("files\\v1\\cpuacct.stat");
         }
 
         public Task<string> ReadMemStat(string containerLongId)
         {
-            return File.ReadAllTextAsync("v1/memstat.txt");
+            return File.ReadAllTextAsync("files\\v1\\memory.stat");
         }
 
         public Task<string> ReadBlkStat(string containerLongId)
         {
-            return File.ReadAllTextAsync("v1/blkstat.txt");
+            return File.ReadAllTextAsync("files\\v1\\blkio.throttle.io_service_bytes");
         }
 
         public Task<string> ReadNetStat(string containerPid)
         {
-            return File.ReadAllTextAsync("v1/netstat.txt");
+            return File.ReadAllTextAsync("files\\v1\\netstat.txt");
         }
     }
 }

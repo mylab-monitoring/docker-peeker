@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MyLab.DockerPeeker.Tools;
+using MyLab.DockerPeeker.Tools.CgroupsV1;
 
 namespace MyLab.DockerPeeker.Services
 {
@@ -12,13 +13,13 @@ namespace MyLab.DockerPeeker.Services
     {
         private readonly IContainerMetricsProvider[] _providers;
 
-        public ContainerMetricsProviderRegistry(IFileContentProvider fileContentProvider)
+        public ContainerMetricsProviderRegistry(IFileContentProviderV1 fileContentProvider)
         {
             _providers = new IContainerMetricsProvider[]
             {
-                new CpuAcctStatCmProvider(fileContentProvider),
-                new MemStatCmProvider(fileContentProvider),
-                new BlkIoStatCmProvider(fileContentProvider),
+                new CpuStatContainerMetricsProviderV1(fileContentProvider),
+                new MemStatContainerMetricsProviderV1(fileContentProvider),
+                new BlkStatContainerMetricsProviderV1(fileContentProvider),
                 new NetStatCmProvider(fileContentProvider),
             };
         }

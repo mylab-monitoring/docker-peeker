@@ -2,14 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MyLab.DockerPeeker.Services;
+using MyLab.DockerPeeker.Tools.StatObjectModel;
 
 namespace MyLab.DockerPeeker.Tools
 {
     class NetStatCmProvider : IContainerMetricsProvider
     {
-        private readonly IFileContentProvider _fileContentProvider;
+        private readonly IFileContentProviderV1 _fileContentProvider;
 
-        public NetStatCmProvider(IFileContentProvider fileContentProvider)
+        public NetStatCmProvider(IFileContentProviderV1 fileContentProvider)
         {
             _fileContentProvider = fileContentProvider;
         }
@@ -18,12 +19,10 @@ namespace MyLab.DockerPeeker.Tools
         {
             var statStr = await _fileContentProvider.ReadNetStat(pid);
 
-            var statParser = StatParser.Create(statStr);
-
-            var netParams = statParser.ExtractNetParams();
-
-            var receive = netParams.Sum(p => p.ReceiveBytes);
-            var transmit = netParams.Sum(p => p.TransmitBytes);
+            var stat = NetStat.Parse(statStr);
+            
+            var receive = stat.Sum(p => p.Value.ReceiveBytes);
+            var transmit = stat.Sum(p => p.Value.TransmitBytes);
 
             return new []
             {

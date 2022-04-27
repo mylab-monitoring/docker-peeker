@@ -1,9 +1,16 @@
-﻿namespace MyLab.DockerPeeker.Tools
+﻿using System;
+
+namespace MyLab.DockerPeeker.Tools
 {
     public partial class ContainerMetricType
     {
-        public static readonly ContainerMetricType CpuUserMetricType;
-        public static readonly ContainerMetricType CpuSystemMetricType;
+        [Obsolete]
+        public static readonly ContainerMetricType CpuJiffiesUserMetricType;
+        [Obsolete]
+        public static readonly ContainerMetricType CpuJiffiesSystemMetricType;
+
+        public static readonly ContainerMetricType CpuMsUserMetricType;
+        public static readonly ContainerMetricType CpuMsSystemMetricType;
 
         public static readonly ContainerMetricType BlkReadMetricType;
         public static readonly ContainerMetricType BlkWriteMetricType;
@@ -18,15 +25,26 @@
 
         static ContainerMetricType()
         {
-            var cpuMetricType = new ContainerMetricType
+            var cpuJiffiesMetricType = new ContainerMetricType
             {
                 Name = "container_cpu_jiffies_total",
                 Type = "counter"
             };
 
-            CpuUserMetricType = cpuMetricType.AddLabel("mode", "user",
+            CpuJiffiesUserMetricType = cpuJiffiesMetricType.AddLabel("mode", "user",
                 "Time is the amount of time a process has direct control of the CPU, executing process code");
-            CpuSystemMetricType = cpuMetricType.AddLabel("mode", "system",
+            CpuJiffiesSystemMetricType = cpuJiffiesMetricType.AddLabel("mode", "system",
+                "Time is the time the kernel is executing system calls on behalf of the process");
+
+            var cpuMsMetricType = new ContainerMetricType
+            {
+                Name = "container_cpu_ms_total",
+                Type = "counter"
+            };
+
+            CpuMsUserMetricType = cpuMsMetricType.AddLabel("mode", "user",
+                "Time is the amount of time a process has direct control of the CPU, executing process code");
+            CpuMsSystemMetricType = cpuMsMetricType.AddLabel("mode", "system",
                 "Time is the time the kernel is executing system calls on behalf of the process");
 
             var blkMetricType = new ContainerMetricType
