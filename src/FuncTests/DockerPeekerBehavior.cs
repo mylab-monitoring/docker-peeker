@@ -189,7 +189,7 @@ namespace FuncTests
 
     class TestFileContentProvider : IFileContentProvider
     {
-        public Task<string> ReadCpuAcctStat(string containerLongId)
+        public Task<string> ReadCpuStat(string containerLongId)
         {
             if (containerLongId != "foo")
                 throw new InvalidOperationException("Met unexpected container id");
@@ -241,7 +241,7 @@ namespace FuncTests
             return Task.FromResult(res);
         }
 
-        public Task<string> ReadBlkIoServiceBytesStat(string containerLongId)
+        public Task<string> ReadBlkStat(string containerLongId)
         {
             if (containerLongId != "foo")
                 throw new InvalidOperationException("Met unexpected container id");

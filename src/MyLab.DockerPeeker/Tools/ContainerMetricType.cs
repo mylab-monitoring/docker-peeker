@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace MyLab.DockerPeeker.Tools
 {
-    public class ContainerMetricType
+    public partial class ContainerMetricType
     {
         readonly Dictionary<string, string> _labels;
 

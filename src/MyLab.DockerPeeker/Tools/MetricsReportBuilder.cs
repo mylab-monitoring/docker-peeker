@@ -16,6 +16,8 @@ namespace MyLab.DockerPeeker.Tools
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
         private readonly IDslLogger _log;
 
+        
+
         public MetricsReportBuilder(
             IContainerListProvider containerListProvider,
             IContainerStateProvider containerStateProvider,
