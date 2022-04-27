@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MyLab.ApiClient.Test;
 using MyLab.DockerPeeker;
 using MyLab.DockerPeeker.Services;
@@ -27,6 +27,10 @@ namespace FuncTests
                     .AddSingleton<IFileContentProvider, TestFileContentProvider>()
                     .AddSingleton<IContainerListProvider, TestContainerListProvider>()
                     .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
+                    .AddLogging(l => l
+                        .AddFilter(l => true)
+                        .AddXUnit(output)
+                    )
             };
         }
 
@@ -191,96 +195,22 @@ namespace FuncTests
     {
         public Task<string> ReadCpuStat(string containerLongId)
         {
-            if (containerLongId != "foo")
-                throw new InvalidOperationException("Met unexpected container id");
-
-            var res = new StringBuilder()
-                .AppendLine("user 8313")
-                .AppendLine("system 10804")
-                .ToString();
-
-            return Task.FromResult(res);
+            return File.ReadAllTextAsync("v1/cpustat.txt");
         }
 
         public Task<string> ReadMemStat(string containerLongId)
         {
-            if (containerLongId != "foo")
-                throw new InvalidOperationException("Met unexpected container id");
-
-            var res = new StringBuilder()
-            .AppendLine("cache 11492564992")
-            .AppendLine("rss 1930993664")
-            .AppendLine("mapped_file 306728960")
-            .AppendLine("pgpgin 406632648")
-            .AppendLine("pgpgout 403355412")
-            .AppendLine("swap 0")
-            .AppendLine("pgfault 728281223")
-            .AppendLine("pgmajfault 1724")
-            .AppendLine("inactive_anon 46608384")
-            .AppendLine("active_anon 1884520448")
-            .AppendLine("inactive_file 7003344896")
-            .AppendLine("active_file 4489052160")
-            .AppendLine("unevictable 32768")
-            .AppendLine("hierarchical_memory_limit 9223372036854775807")
-            .AppendLine("hierarchical_memsw_limit 9223372036854775807")
-            .AppendLine("total_cache 11492564992")
-            .AppendLine("total_rss 1930993664")
-            .AppendLine("total_mapped_file 306728960")
-            .AppendLine("total_pgpgin 406632648")
-            .AppendLine("total_pgpgout 403355412")
-            .AppendLine("total_swap 0")
-            .AppendLine("total_pgfault 728281223")
-            .AppendLine("total_pgmajfault 1724")
-            .AppendLine("total_inactive_anon 46608384")
-            .AppendLine("total_active_anon 1884520448")
-            .AppendLine("total_inactive_file 7003344896")
-            .AppendLine("total_active_file 4489052160")
-            .AppendLine("total_unevictable 32768")
-                .ToString();
-
-            return Task.FromResult(res);
+            return File.ReadAllTextAsync("v1/memstat.txt");
         }
 
         public Task<string> ReadBlkStat(string containerLongId)
         {
-            if (containerLongId != "foo")
-                throw new InvalidOperationException("Met unexpected container id");
-
-            var res = new StringBuilder()
-            .AppendLine("253:1 Read 12599296")
-            .AppendLine("253:1 Write 0")
-            .AppendLine("253:1 Sync 0")
-            .AppendLine("253:1 Async 12599296")
-            .AppendLine("253:1 Total 12599296")
-            .AppendLine("8:0 Read 131813376")
-            .AppendLine("8:0 Write 0")
-            .AppendLine("8:0 Sync 0")
-            .AppendLine("8:0 Async 131813376")
-            .AppendLine("8:0 Total 131813376")
-            .AppendLine("253:0 Read 119209984")
-            .AppendLine("253:0 Write 0")
-            .AppendLine("253:0 Sync 0")
-            .AppendLine("253:0 Async 119209984")
-            .AppendLine("253:0 Total 119209984")
-            .AppendLine("Total 263622656")
-                .ToString();
-
-            return Task.FromResult(res);
+            return File.ReadAllTextAsync("v1/blkstat.txt");
         }
 
         public Task<string> ReadNetStat(string containerPid)
         {
-            if (containerPid != "123" && containerPid != "124")
-                throw new InvalidOperationException("Met unexpected container id");
-
-            var res = new StringBuilder()
-                .AppendLine("Inter-|   Receive                                                |  Transmit")
-                .AppendLine("  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed")
-                .AppendLine("     lo: 33373754  320402    1    2    3     4          5         6 33373754  320402    7    8    9     1       2          3")
-                .AppendLine("     eth3: 10  320402    1    2    3     4          5         6 20  320402    7    8    9     1       2          3")
-                .ToString();
-
-            return Task.FromResult(res);
+            return File.ReadAllTextAsync("v1/netstat.txt");
         }
     }
 }
