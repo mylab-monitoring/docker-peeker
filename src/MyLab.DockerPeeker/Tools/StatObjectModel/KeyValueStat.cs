@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using MyLab.Log;
 
 namespace MyLab.DockerPeeker.Tools.StatObjectModel
@@ -46,6 +47,14 @@ namespace MyLab.DockerPeeker.Tools.StatObjectModel
                 .ToDictionary(l => l.Item1, l => l.Item2);
 
             return new KeyValueStat(dict);
+        }
+
+        public long GetRequired(string key)
+        {
+            if (!TryGetValue(key, out long val))
+                throw new InvalidOperationException($"Required field '{key}' not found.");
+
+            return val;
         }
     }
 }

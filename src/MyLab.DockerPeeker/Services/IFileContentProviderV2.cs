@@ -3,14 +3,16 @@ using System.Threading.Tasks;
 
 namespace MyLab.DockerPeeker.Services
 {
-    public interface IFileContentProviderV2
+    public interface IFileContentProviderV2 : ICommonFileContentProvider
     {
         Task<string> ReadCpuStat(string containerLongId);
         Task<string> ReadIoStat(string containerLongId);
-
-        Task<string> ReadNetStat(string containerPid);
-
         Task<string> ReadMemInfo();
+        Task<string> ReadMemStat(string containerLongId);
+        Task<string> ReadMemSwapCurrent(string containerLongId);
+
+        Task<string> ReadMemMax(string containerLongId);
+        Task<string> ReadSwapMax(string containerLongId);
     }
 
     class FileContentProviderV2 : IFileContentProviderV2
@@ -33,6 +35,26 @@ namespace MyLab.DockerPeeker.Services
         public Task<string> ReadMemInfo()
         {
             return File.ReadAllTextAsync("/proc/meminfo");
+        }
+
+        public Task<string> ReadMemStat(string containerLongId)
+        {
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/system.slice/docker-{containerLongId}.scope/memory.stat");
+        }
+
+        public Task<string> ReadMemSwapCurrent(string containerLongId)
+        {
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/system.slice/docker-{containerLongId}.scope/memory.swap.current");
+        }
+
+        public Task<string> ReadMemMax(string containerLongId)
+        {
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/system.slice/docker-{containerLongId}.scope/memory.max");
+        }
+
+        public Task<string> ReadSwapMax(string containerLongId)
+        {
+            return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/system.slice/docker-{containerLongId}.scope/memory.swap.max");
         }
     }
 }

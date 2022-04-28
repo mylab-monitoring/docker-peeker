@@ -8,9 +8,9 @@ namespace MyLab.DockerPeeker.Tools
 {
     class NetStatCmProvider : IContainerMetricsProvider
     {
-        private readonly IFileContentProviderV1 _fileContentProvider;
+        private readonly ICommonFileContentProvider _fileContentProvider;
 
-        public NetStatCmProvider(IFileContentProviderV1 fileContentProvider)
+        public NetStatCmProvider(ICommonFileContentProvider fileContentProvider)
         {
             _fileContentProvider = fileContentProvider;
         }

@@ -20,19 +20,23 @@ namespace MyLab.DockerPeeker
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection srv)
         {
-            services.AddLogging(b => b.AddConsole());
-            services.AddControllers(c => c.AddExceptionProcessing());
-            services.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
-            services.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
-            services.AddSingleton<IContainerListProvider, ContainerListProvider>();
-            services.AddSingleton<MetricsReportBuilder>();
-            services.AddSingleton<IFileContentProviderV1, FileContentProviderV1>();
+            srv.AddLogging(b => b.AddConsole());
+            srv.AddControllers(c => c.AddExceptionProcessing());
 
-            services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
+            srv.AddSingleton<ICGroupDetector, CGroupDetector>();
+            srv.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
+            srv.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
+            srv.AddSingleton<IContainerListProvider, ContainerListProvider>();
+            srv.AddSingleton<MetricsReportBuilder>();
+
+            srv.AddSingleton<IFileContentProviderV1, FileContentProviderV1>();
+            srv.AddSingleton<IFileContentProviderV2, FileContentProviderV2>();
+
+            srv.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
 #if DEBUG
-            services.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
+            srv.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
 #endif
         }
 

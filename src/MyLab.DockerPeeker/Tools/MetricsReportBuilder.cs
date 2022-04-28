@@ -36,10 +36,7 @@ namespace MyLab.DockerPeeker.Tools
 
             var states = await _containerStateProvider.ProvideAsync(containerLinks);
 
-            var metricsProviders = 
-                _containerMetricsProviderRegistry
-                    .Provide()
-                    .ToArray();
+            var metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
 
             foreach (var containerLink in containerLinks)
             {

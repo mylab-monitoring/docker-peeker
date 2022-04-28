@@ -21,11 +21,8 @@ namespace MyLab.DockerPeeker.Tools.CgroupsV2
 
             var stat = KeyValueStat.Parse(statContent);
 
-            if (!stat.TryGetValue("user_usec", out long userValue))
-                throw new InvalidOperationException("User CPU stat item 'user_usec' not found");
-
-            if (!stat.TryGetValue("system_usec", out long systemValue))
-                throw new InvalidOperationException("System CPU stat item 'system_usec' not found");
+            var userValue = stat.GetRequired("user_usec");
+            var systemValue = stat.GetRequired("system_usec");
             
             return new[]
             {

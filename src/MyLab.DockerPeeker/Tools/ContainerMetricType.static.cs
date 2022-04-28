@@ -15,6 +15,8 @@ namespace MyLab.DockerPeeker.Tools
         public static readonly ContainerMetricType BlkReadMetricType;
         public static readonly ContainerMetricType BlkWriteMetricType;
 
+        public static readonly ContainerMetricType MemStatMetricType;
+
         public static readonly ContainerMetricType MemSwapMetricType;
         public static readonly ContainerMetricType MemCacheMetricType;
         public static readonly ContainerMetricType MemRssMetricType;
@@ -22,7 +24,7 @@ namespace MyLab.DockerPeeker.Tools
         public static readonly ContainerMetricType MemSwLimitMetricType;
         public static readonly ContainerMetricType NetReceiveMetricType;
         public static readonly ContainerMetricType NetTransmitMetricType;
-
+        
         static ContainerMetricType()
         {
             var cpuJiffiesMetricType = new ContainerMetricType
@@ -90,6 +92,13 @@ namespace MyLab.DockerPeeker.Tools
                 netReceiveMetricType.AddLabel("direction", "receive", "Report total received bytes");
             NetTransmitMetricType =
                 netReceiveMetricType.AddLabel("direction", "transmit", "Report total transmitted bytes");
+
+            MemStatMetricType = new ContainerMetricType
+            {
+                Name = "container_mem_stat_bytes",
+                Type = "gauge",
+                Description = "Indicated amount of memory of specific type"
+            };
         }
     }
 }
