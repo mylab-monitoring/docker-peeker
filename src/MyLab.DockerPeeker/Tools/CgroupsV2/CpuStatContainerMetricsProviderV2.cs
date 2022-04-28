@@ -26,10 +26,10 @@ namespace MyLab.DockerPeeker.Tools.CgroupsV2
             
             return new[]
             {
-                new ContainerMetric(userValue/10, ContainerMetricType.CpuJiffiesUserMetricType),
-                new ContainerMetric(systemValue/10, ContainerMetricType.CpuJiffiesSystemMetricType),
-                new ContainerMetric(userValue, ContainerMetricType.CpuMsUserMetricType),
-                new ContainerMetric(systemValue, ContainerMetricType.CpuMsSystemMetricType)
+                new ContainerMetric(userValue/10000, ContainerMetricType.CpuJiffiesUserMetricType),
+                new ContainerMetric(systemValue/10000, ContainerMetricType.CpuJiffiesSystemMetricType),
+                new ContainerMetric(userValue/1000, ContainerMetricType.CpuMsUserMetricType),
+                new ContainerMetric(systemValue/1000, ContainerMetricType.CpuMsSystemMetricType)
             };
         }
     }
