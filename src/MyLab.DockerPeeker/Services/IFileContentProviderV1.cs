@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
 
 namespace MyLab.DockerPeeker.Services
 {
-    public interface IFileContentProvider
+    public interface IFileContentProviderV1 : ICommonFileContentProvider
     {
-        Task<string> ReadCpuAcctStat(string containerLongId);
+        Task<string> ReadCpuStat(string containerLongId);
         Task<string> ReadMemStat(string containerLongId);
-        Task<string> ReadBlkIoServiceBytesStat(string containerLongId);
-
-        Task<string> ReadNetStat(string containerPid);
+        Task<string> ReadBlkStat(string containerLongId);
     }
 
-    class RealFileContentProvider : IFileContentProvider
+    class FileContentProviderV1 : IFileContentProviderV1
     {
-        public Task<string> ReadCpuAcctStat(string containerLongId)
+        public Task<string> ReadCpuStat(string containerLongId)
         {
             return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/cpuacct/docker/{containerLongId}/cpuacct.stat");
         }
@@ -27,7 +22,7 @@ namespace MyLab.DockerPeeker.Services
             return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/memory/docker/{containerLongId}/memory.stat");
         }
 
-        public Task<string> ReadBlkIoServiceBytesStat(string containerLongId)
+        public Task<string> ReadBlkStat(string containerLongId)
         {
             return File.ReadAllTextAsync($"/etc/docker-peeker/cgroup/blkio/docker/{containerLongId}/blkio.throttle.io_service_bytes");
         }

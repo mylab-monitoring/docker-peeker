@@ -16,6 +16,8 @@ namespace MyLab.DockerPeeker.Tools
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
         private readonly IDslLogger _log;
 
+        
+
         public MetricsReportBuilder(
             IContainerListProvider containerListProvider,
             IContainerStateProvider containerStateProvider,
@@ -34,10 +36,7 @@ namespace MyLab.DockerPeeker.Tools
 
             var states = await _containerStateProvider.ProvideAsync(containerLinks);
 
-            var metricsProviders = 
-                _containerMetricsProviderRegistry
-                    .Provide()
-                    .ToArray();
+            var metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
 
             foreach (var containerLink in containerLinks)
             {

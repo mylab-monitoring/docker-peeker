@@ -1,31 +1,63 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MyLab.DockerPeeker.Tools;
+using MyLab.DockerPeeker.Tools.CgroupsV1;
+using MyLab.DockerPeeker.Tools.CgroupsV2;
 
 namespace MyLab.DockerPeeker.Services
 {
     public interface IContainerMetricsProviderRegistry
     {
-        IEnumerable<IContainerMetricsProvider> Provide();
+        Task<IContainerMetricsProvider[]> ProvideAsync();
     }
 
     class ContainerMetricsProviderRegistry : IContainerMetricsProviderRegistry
     {
-        private readonly IContainerMetricsProvider[] _providers;
+        private readonly ICGroupDetector _cGroupDetector;
 
-        public ContainerMetricsProviderRegistry(IFileContentProvider fileContentProvider)
+        private Lazy<IContainerMetricsProvider[]> _lazyProvidesV1;
+        private Lazy<IContainerMetricsProvider[]> _lazyProvidesV2;
+
+        public ContainerMetricsProviderRegistry(
+            IFileContentProviderV1 fileContentProvider1,
+            IFileContentProviderV2 fileContentProvider2,
+            ICGroupDetector cGroupDetector)
         {
-            _providers = new IContainerMetricsProvider[]
-            {
-                new CpuAcctStatCmProvider(fileContentProvider),
-                new MemStatCmProvider(fileContentProvider),
-                new BlkIoStatCmProvider(fileContentProvider),
-                new NetStatCmProvider(fileContentProvider),
-            };
+            _cGroupDetector = cGroupDetector;
+
+            _lazyProvidesV1 = new Lazy<IContainerMetricsProvider[]>(() =>
+                new IContainerMetricsProvider[]
+                {
+                    new CpuStatContainerMetricsProviderV1(fileContentProvider1),
+                    new MemStatContainerMetricsProviderV1(fileContentProvider1),
+                    new BlkStatContainerMetricsProviderV1(fileContentProvider1),
+                    new NetStatCmProvider(fileContentProvider1),
+                });
+
+            _lazyProvidesV2 = new Lazy<IContainerMetricsProvider[]>(() =>
+                new IContainerMetricsProvider[]
+                {
+                    new CpuStatContainerMetricsProviderV2(fileContentProvider2),
+                    new MemStatContainerMetricsProviderV2(fileContentProvider2),
+                    new IoStatContainerMetricsProviderV2(fileContentProvider2),
+                    new NetStatCmProvider(fileContentProvider2),
+                });
         }
 
-        public IEnumerable<IContainerMetricsProvider> Provide()
+        public async Task<IContainerMetricsProvider[]> ProvideAsync()
         {
-            return _providers;
+            var cgroupVer = await _cGroupDetector.GetCGroupVersionAsync();
+
+            switch (cgroupVer)
+            {
+                case CGroupVersion.V1:
+                    return _lazyProvidesV1.Value;
+                case CGroupVersion.V2:
+                    return _lazyProvidesV2.Value;
+                default:
+                    throw new ArgumentOutOfRangeException("cgroup-version");
+            }
         }
     }
 }

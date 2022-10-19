@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="MyLab.ApiClient" Version="3.7.21" />
     <PackageReference Include="MyLab.ApiClient.Test" Version="1.3.5" />
@@ -23,6 +24,33 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyLab.DockerPeeker\MyLab.DockerPeeker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="files\v1\blkio.throttle.io_service_bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v1\cpuacct.stat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v1\memory.stat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v1\netstat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v2\io.stat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v2\cpustat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v2\memstat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v2\netstat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

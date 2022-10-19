@@ -23,4 +23,22 @@
     <ProjectReference Include="..\MyLab.DockerPeeker\MyLab.DockerPeeker.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="files\meminfo">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\netstat.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v1\blkio.throttle.io_service_bytes">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v1\cpuacct.stat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="files\v2\io.stat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
