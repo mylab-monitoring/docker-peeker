@@ -43,7 +43,7 @@ namespace MyLab.DockerPeeker.Tools
 
             if (_containerState?.Labels != null)
             {
-                foreach (var stateLabel in _containerState?.Labels)
+                foreach (var stateLabel in _containerState.Labels)
                 {
                     var key = "container_label_" + NormKey(stateLabel.Key);
                     if (labels.ContainsKey(key))
@@ -60,7 +60,7 @@ namespace MyLab.DockerPeeker.Tools
 
             if (labels.Count != 0)
             {
-                var keyValues = labels.Select(kv => $"{kv.Key}=\"{kv.Value}\"");
+                var keyValues = labels.Select(kv => $"{kv.Key}=\"{StringEscape.Escape(kv.Value)}\"");
                 var addLabels = string.Join(',', keyValues);
                 sb.Append("," + addLabels);
             }
