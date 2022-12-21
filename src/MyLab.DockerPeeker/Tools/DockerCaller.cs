@@ -16,9 +16,7 @@ namespace MyLab.DockerPeeker.Tools
         public const string ContainerIdSeparator = "<id-separator>";
         public const string ContainerPidSeparator = "<pid-separator>";
         public const string StringStartMarker = "<string-start>";
-
-        public IDslLogger Logger { get; set; }
-
+        
         public async Task<string[]> GetActiveContainersAsync()
         {
             var response =

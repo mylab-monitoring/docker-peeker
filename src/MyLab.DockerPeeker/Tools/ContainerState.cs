@@ -47,25 +47,16 @@ namespace MyLab.DockerPeeker.Tools
 
                 foreach (var pair in pairs)
                 {
-                    var pairItems = pair.Split('=');
+                    var separatorIndex = pair.IndexOf('=');
 
-                    if (pairItems.Length > 2)
-                        throw new FormatException($"Too many pair items: '{pair}'");
+                    if (separatorIndex < 0) 
+                        throw new FormatException("Separator '=' not found");
 
-                    var pairValue = pairItems.Length == 2
-                        ? pairItems[1]
-                        : string.Empty;
+                    var val = separatorIndex == pair.Length-1
+                        ? string.Empty
+                        : pair.Substring(separatorIndex+1);
 
-                    try
-                    {
-                        labelPairs.Add(pairItems[0].Trim(), pairValue.Trim());
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-
+                    labelPairs.Add(pair.Remove(separatorIndex).Trim(), val.Trim());
                 }
             }
 

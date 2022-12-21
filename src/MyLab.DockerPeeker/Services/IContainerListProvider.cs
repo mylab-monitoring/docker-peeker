@@ -19,10 +19,7 @@ namespace MyLab.DockerPeeker.Services
 
         public ContainerListProvider(ILogger<ContainerListProvider> logger)
         {
-            _dockerCaller = new DockerCaller
-            {
-                Logger = logger.Dsl()
-            };
+            _dockerCaller = new DockerCaller();
         }
 
         public async Task<ContainerLink[]> ProviderActiveContainersAsync()

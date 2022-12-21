@@ -18,13 +18,12 @@ namespace MyLab.DockerPeeker.Services
         private readonly IDictionary<string, CashedState> _states = new Dictionary<string, CashedState>();
         private readonly object _statesLock = new object();
         private readonly DockerCaller _dockerCaller;
+        private readonly IDslLogger _log;
 
-        public DockerContainerStateProvider(ILogger<DockerContainerStateProvider> logger)
+        public DockerContainerStateProvider(ILogger<DockerContainerStateProvider> logger = null)
         {
-            _dockerCaller = new DockerCaller
-            {
-                Logger = logger.Dsl()
-            };
+            _log = logger?.Dsl();
+            _dockerCaller = new DockerCaller();
         }
 
         public async Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
@@ -43,9 +42,23 @@ namespace MyLab.DockerPeeker.Services
             {
                 var dockerResponse = await _dockerCaller.GetStates(needToGetIds);
 
-                var newStates = dockerResponse
-                    .Select(ContainerState.Parse)
-                    .ToArray();
+                var newStates = new List<ContainerState>();
+
+                foreach (var dockerResponseItem in dockerResponse)
+                {
+                    try
+                    {
+                        var dockerState = ContainerState.Parse(dockerResponseItem);
+
+                        newStates.Add(dockerState);
+                    }
+                    catch (Exception e)
+                    {
+                        _log?.Warning("Docker container state parsing error", e)
+                            .AndFactIs("output", dockerResponseItem)
+                            .Write();
+                    }
+                }
 
                 lock (_statesLock)
                 {
