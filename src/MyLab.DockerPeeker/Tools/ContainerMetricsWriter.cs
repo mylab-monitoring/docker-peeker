@@ -60,6 +60,7 @@ namespace MyLab.DockerPeeker.Tools
 
             if (labels.Count != 0)
             {
+
                 var keyValues = labels.Select(kv => $"{kv.Key}=\"{StringEscape.Escape(kv.Value)}\"");
                 var addLabels = string.Join(',', keyValues);
                 sb.Append("," + addLabels);

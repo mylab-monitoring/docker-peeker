@@ -25,6 +25,7 @@ namespace FuncTests
                 Output = output,
                 ServiceOverrider = s => s
                     .AddSingleton<IFileContentProviderV1, TestFileContentProvider>()
+                    .AddSingleton<ICGroupDetector, TestCGroupDetector>()
                     .AddSingleton<IContainerListProvider, TestContainerListProvider>()
                     .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
                     .AddLogging(l => l
@@ -211,6 +212,14 @@ namespace FuncTests
         public Task<string> ReadNetStat(string containerPid)
         {
             return File.ReadAllTextAsync("files\\v1\\netstat.txt");
+        }
+    }
+
+    class TestCGroupDetector : ICGroupDetector
+    {
+        public Task<CGroupVersion> GetCGroupVersionAsync()
+        {
+            return Task.FromResult(CGroupVersion.V1);
         }
     }
 }
