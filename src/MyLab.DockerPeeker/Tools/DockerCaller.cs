@@ -1,93 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using MyLab.Log;
-using MyLab.Log.Dsl;
+using Docker.DotNet;
+using Docker.DotNet.Models;
 
 namespace MyLab.DockerPeeker.Tools
 {
     class DockerCaller
     {
-        public const string LabelNamePrefix = "docker_label_";
-        public const string ContainerIdSeparator = "<id-separator>";
-        public const string ContainerPidSeparator = "<pid-separator>";
-        public const string StringStartMarker = "<string-start>";
-        
-        public async Task<string[]> GetActiveContainersAsync()
+        private readonly DockerClient _docker;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="DockerCaller"/>
+        /// </summary>
+        public DockerCaller()
         {
-            var response =
-                await Call(
-                    "ps",
-                    "--no-trunc",
-                    "--format",
-                    "{{.ID}}\t{{.Names}}\t{{.CreatedAt}}");
-            return response.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            _docker = new DockerClientConfiguration(
+                    new Uri("unix:///var/run/docker.sock"))
+                .CreateClient();
         }
 
-        public async Task<string[]> GetStates(string[] ids)
+        public async Task<ContainerLink[]> GetActiveContainersAsync()
         {
-            var args = new List<string>
+            var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
             {
-                "inspect",
-                "--format",
-                StringStartMarker + "{{.ID}}" + ContainerIdSeparator + "{{ .State.Pid }}" + ContainerPidSeparator + "{{ range $k, $v := .Config.Labels }}" + LabelNamePrefix + "{{$k}}={{$v}} {{ end }}"
-            };
+                All = true
+            });
 
-            args.AddRange(ids);
-
-            var response = await Call(args.ToArray());
-
-            return response
-                .Replace("\n", " ")
-                .Replace(StringStartMarker, "\n")
-                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            return containers.Select(c => new ContainerLink
+            {
+                CreatedAt = c.Created,
+                LongId = c.ID,
+                Name = c.Names.FirstOrDefault()
+            }).ToArray();
         }
 
-        static async Task<string> Call(params string[] args)
+        public async Task<ContainerState[]> GetStates(string[] ids)
         {
-            var res = new StringBuilder();
-            var err = new StringBuilder();
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
             {
-                FileName = "docker",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
+                All = true
+            });
 
-            foreach (var arg in args)
+            var resList = new List<ContainerState>();
+
+            var selectedContainers = containers.Where(c => ids.Contains(c.ID));
+
+            foreach (var container in selectedContainers)
             {
-                startInfo.ArgumentList.Add(arg);
+                var inspection = await _docker.Containers.InspectContainerAsync(container.ID);
+                
+                resList.Add(new ContainerState(container.ID, inspection.State.Pid.ToString(), container.Labels));
             }
 
-            Process proc = new Process
-            {
-                StartInfo = startInfo
-            };
-            proc.Start();
-
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                res.AppendLine(proc.StandardOutput.ReadLine());
-            }
-
-            while (!proc.StandardError.EndOfStream)
-            {
-                err.AppendLine(proc.StandardError.ReadLine());
-            }
-
-            await proc.WaitForExitAsync();
-
-            if(proc.ExitCode != 0)
-                throw new InvalidOperationException(err.ToString())
-                    .AndFactIs("proc-fn", startInfo.FileName)
-                    .AndFactIs("proc-params", string.Join(" ", startInfo.ArgumentList.Select(a => $"\"{a}\"")));
-
-            return res.ToString();
+            return resList.ToArray();
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using Docker.DotNet;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +26,8 @@ namespace MyLab.DockerPeeker
         {
             srv.AddLogging(b => b.AddConsole());
             srv.AddControllers(c => c.AddExceptionProcessing());
-
+            
+            srv.AddSingleton<DockerCaller>();
             srv.AddSingleton<ICGroupDetector, CGroupDetector>();
             srv.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
             srv.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
