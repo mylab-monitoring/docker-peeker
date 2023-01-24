@@ -38,20 +38,13 @@ namespace MyLab.DockerPeeker.Tools
 
         public async Task<ContainerState[]> GetStates(string[] ids)
         {
-            var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
-            {
-                All = true
-            });
-
             var resList = new List<ContainerState>();
 
-            var selectedContainers = containers.Where(c => ids.Contains(c.ID));
-
-            foreach (var container in selectedContainers)
+            foreach (var containerId in ids)
             {
-                var inspection = await _docker.Containers.InspectContainerAsync(container.ID);
+                var inspection = await _docker.Containers.InspectContainerAsync(containerId);
                 
-                resList.Add(new ContainerState(container.ID, inspection.State.Pid.ToString(), container.Labels));
+                resList.Add(new ContainerState(containerId, inspection.State.Pid.ToString(), inspection.Config.Labels));
             }
 
             return resList.ToArray();

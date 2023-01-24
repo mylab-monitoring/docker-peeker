@@ -10,13 +10,13 @@ namespace MyLab.DockerPeeker.Services
 {
     public interface IContainerStateProvider
     {
-        Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks);
+        Task<ContainerState[]> ProvideAsync();
     }
 
     class DockerContainerStateProvider : IContainerStateProvider
     {
         private readonly IDictionary<string, CashedState> _states = new Dictionary<string, CashedState>();
-        private readonly object _statesLock = new object();
+        private readonly object _statesLock = new ();
         private readonly DockerCaller _dockerCaller;
         private readonly IDslLogger _log;
 
@@ -26,21 +26,29 @@ namespace MyLab.DockerPeeker.Services
             _dockerCaller = dockerCaller;
         }
 
-        public async Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
+        public async Task<ContainerState[]> ProvideAsync()
         {
-            string[] needToGetIds;
+            string[] needToGetState;
+
+            var containers = await _dockerCaller.GetActiveContainersAsync();
+
+            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.LongId != ck));
+            foreach (var lostContainer in lostContainers)
+            {
+                _states.Remove(lostContainer);
+            } 
 
             lock (_statesLock)
             {
-                needToGetIds = containersLinks
+                needToGetState = containers
                     .Where(l => !_states.TryGetValue(l.LongId, out var found) || found.ActualDt < l.CreatedAt)
                     .Select(l => l.LongId)
                     .ToArray();
             }
 
-            if (needToGetIds.Length != 0)
+            if (needToGetState.Length != 0)
             {
-                var dockerStates = await _dockerCaller.GetStates(needToGetIds);
+                var dockerStates = await _dockerCaller.GetStates(needToGetState);
                 
                 lock (_statesLock)
                 {
@@ -66,7 +74,7 @@ namespace MyLab.DockerPeeker.Services
 
             lock (_statesLock)
             {
-                return containersLinks
+                return containers
                     .Where(l => _states.ContainsKey(l.LongId))
                     .Select(l => _states[l.LongId].State)
                     .ToArray();

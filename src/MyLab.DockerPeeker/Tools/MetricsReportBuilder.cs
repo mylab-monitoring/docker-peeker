@@ -11,7 +11,6 @@ namespace MyLab.DockerPeeker.Tools
 {
     public class MetricsReportBuilder
     {
-        private readonly IContainerListProvider _containerListProvider;
         private readonly IContainerStateProvider _containerStateProvider;
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
         private readonly IDslLogger _log;
@@ -19,12 +18,10 @@ namespace MyLab.DockerPeeker.Tools
         
 
         public MetricsReportBuilder(
-            IContainerListProvider containerListProvider,
             IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
             ILogger<MetricsReportBuilder> logger = null)
         {
-            _containerListProvider = containerListProvider;
             _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
             _log = logger?.Dsl();
@@ -32,8 +29,6 @@ namespace MyLab.DockerPeeker.Tools
 
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
         {
-            var containerLinks = await _containerListProvider.ProviderActiveContainersAsync();
-
             var states = await _containerStateProvider.ProvideAsync(containerLinks);
 
             var metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();

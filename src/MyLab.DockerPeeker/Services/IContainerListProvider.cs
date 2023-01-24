@@ -8,23 +8,23 @@ using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Services
 {
-    public interface IContainerListProvider
-    {
-        Task<ContainerLink[]> ProviderActiveContainersAsync();
-    }
+    //public interface IContainerListProvider
+    //{
+    //    Task<ContainerLink[]> ProviderActiveContainersAsync();
+    //}
 
-    class ContainerListProvider : IContainerListProvider
-    {
-        private readonly DockerCaller _dockerCaller;
+    //class ContainerListProvider : IContainerListProvider
+    //{
+    //    private readonly DockerCaller _dockerCaller;
 
-        public ContainerListProvider(DockerCaller dockerCaller, ILogger<ContainerListProvider> logger)
-        {
-            _dockerCaller = dockerCaller;
-        }
+    //    public ContainerListProvider(DockerCaller dockerCaller, ILogger<ContainerListProvider> logger)
+    //    {
+    //        _dockerCaller = dockerCaller;
+    //    }
 
-        public async Task<ContainerLink[]> ProviderActiveContainersAsync()
-        {
-            return await _dockerCaller.GetActiveContainersAsync();
-        }
-    }
+    //    public async Task<ContainerLink[]> ProviderActiveContainersAsync()
+    //    {
+    //        return await _dockerCaller.GetActiveContainersAsync();
+    //    }
+    //}
 }
