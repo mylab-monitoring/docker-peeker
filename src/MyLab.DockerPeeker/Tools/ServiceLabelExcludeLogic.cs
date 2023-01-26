@@ -14,7 +14,8 @@ namespace MyLab.DockerPeeker.Tools
         private static readonly string[] ServiceLabelsStartWith = new[]
         {
             "com.docker.compose.",
-            "desktop.docker."
+            "desktop.docker.",
+            "org.opencontainers."
         };
 
         public ServiceLabelExcludeLogic()

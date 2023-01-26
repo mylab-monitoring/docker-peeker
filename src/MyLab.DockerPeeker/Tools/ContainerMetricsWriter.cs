@@ -11,8 +11,6 @@ namespace MyLab.DockerPeeker.Tools
         private readonly ContainerState _containerState;
         private readonly StringBuilder _stringBuilder;
 
-        public ServiceLabelExcludeLogic LabelExcludeLogic { get; set; }
-
         public ContainerMetricsWriter(
             ContainerState containerState,
             StringBuilder stringBuilder)
@@ -44,9 +42,6 @@ namespace MyLab.DockerPeeker.Tools
             {
                 foreach (var stateLabel in _containerState.Labels)
                 {
-                    if(LabelExcludeLogic != null && LabelExcludeLogic.ShouldExcludeLabel(stateLabel.Key))
-                        continue;
-
                     var key = "container_label_" + NormKey(stateLabel.Key);
                     if (labels.ContainsKey(key))
                     {

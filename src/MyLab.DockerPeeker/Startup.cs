@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Services;
 using MyLab.DockerPeeker.Tools;
 using MyLab.WebErrors;
+using Newtonsoft.Json;
 
 namespace MyLab.DockerPeeker
 {
@@ -25,7 +26,11 @@ namespace MyLab.DockerPeeker
         public void ConfigureServices(IServiceCollection srv)
         {
             srv.AddLogging(b => b.AddConsole());
-            srv.AddControllers(c => c.AddExceptionProcessing());
+            srv.AddControllers(c => c.AddExceptionProcessing())
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
             
             srv.AddSingleton<DockerCaller>();
             srv.AddSingleton<IPeekingReportService, PeekingReportService>();
