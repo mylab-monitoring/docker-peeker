@@ -22,7 +22,6 @@ namespace MyLab.DockerPeeker.Tools
             IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
             IPeekingReportService reportService,
-            IOptions<DockerPeekerOptions> opts,
             ILogger<MetricsReportBuilder> logger = null)
         {
             _containerStateProvider = containerStateProvider;
@@ -57,32 +56,42 @@ namespace MyLab.DockerPeeker.Tools
 
             foreach (var containerState in states)
             {
-                var writer = new ContainerMetricsWriter(
-                    containerState,
-                    reportStringBuilder);
-
-                Dictionary<string, ExceptionDto> errors = null; 
-
-                foreach (var metricsProvider in metricsProviders)
+                Dictionary<string, ExceptionDto> errors = null;
+                
+                if (!containerState.IsActive)
                 {
-                    try
-                    {
-                        var containerMetrics = await metricsProvider.ProvideAsync(containerState.ContainerId, containerState.Pid);
+                    _log?.Warning("Inactive container detected")
+                        .AndFactIs("container-state", containerState)
+                        .Write();
+                }
+                else
+                {
+                    var writer = new ContainerMetricsWriter(
+                        containerState,
+                        reportStringBuilder);
 
-                        foreach (var containerMetric in containerMetrics)
+                    foreach (var metricsProvider in metricsProviders)
+                    {
+                        try
                         {
-                            writer.Write(containerMetric);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        _log?.Error("Container metrics providing error", e)
-                            .AndFactIs("container-id", containerState.ContainerId)
-                            .AndFactIs("container-name", containerState.Name)
-                            .Write();
+                            var containerMetrics =
+                                await metricsProvider.ProvideAsync(containerState.Id, containerState.Pid);
 
-                        errors ??= new Dictionary<string, ExceptionDto>();
-                        errors.Add(metricsProvider.GetType().Name, e);
+                            foreach (var containerMetric in containerMetrics)
+                            {
+                                writer.Write(containerMetric);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            _log?.Error("Container metrics providing error", e)
+                                .AndFactIs("container-id", containerState.Id)
+                                .AndFactIs("container-name", containerState.Name)
+                                .Write();
+
+                            errors ??= new Dictionary<string, ExceptionDto>();
+                            errors.Add(metricsProvider.GetType().Name, e);
+                        }
                     }
                 }
 

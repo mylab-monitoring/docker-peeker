@@ -161,7 +161,7 @@ namespace FuncTests
                     {
                         Pid = pid,
                         Name = "bar",
-                        ContainerId = "foo",
+                        Id = "foo",
                         Labels = new Dictionary<string, string>
                         {
                             {"label_pid", pid}

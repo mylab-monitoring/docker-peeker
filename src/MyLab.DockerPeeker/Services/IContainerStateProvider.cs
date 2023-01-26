@@ -62,13 +62,13 @@ namespace MyLab.DockerPeeker.Services
                             State = newState
                         };
 
-                        if (_states.ContainsKey(newState.ContainerId))
+                        if (_states.ContainsKey(newState.Id))
                         {
-                            _states[newState.ContainerId] = newCashedState;
+                            _states[newState.Id] = newCashedState;
                         }
                         else
                         {
-                            _states.Add(newState.ContainerId, newCashedState);
+                            _states.Add(newState.Id, newCashedState);
                         }
                     }
                 }

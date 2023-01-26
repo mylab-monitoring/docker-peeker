@@ -51,10 +51,12 @@ namespace MyLab.DockerPeeker.Tools
 
                 resList.Add(new ContainerState
                 {
-                    Name = inspection.Name,
-                    ContainerId = containerId,
+                    Name = inspection.Name.TrimStart('/'),
+                    Id = containerId,
                     Pid = inspection.State.Pid.ToString(),
-                    Labels = new Dictionary<string, string>(selectedLabels)
+                    Labels = new Dictionary<string, string>(selectedLabels),
+                    Status = inspection.State.Status,
+                    IsActive = inspection.State.Running
                 });
             }
 
