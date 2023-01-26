@@ -37,6 +37,7 @@ namespace MyLab.DockerPeeker
             srv.AddSingleton<IFileContentProviderV1, FileContentProviderV1>();
             srv.AddSingleton<IFileContentProviderV2, FileContentProviderV2>();
 
+            srv.Configure<DockerPeekerOptions>(Configuration.GetSection("DockerPeeker"));
             srv.Configure<ExceptionProcessingOptions>(o => o.HideError = false);
 #if DEBUG
             srv.Configure<ExceptionProcessingOptions>(o => o.HideError = false);

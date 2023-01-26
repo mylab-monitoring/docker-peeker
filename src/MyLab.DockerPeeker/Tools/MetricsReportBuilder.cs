@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MyLab.DockerPeeker.Services;
 using MyLab.Log;
 using MyLab.Log.Dsl;
@@ -16,17 +17,23 @@ namespace MyLab.DockerPeeker.Tools
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
         private readonly IPeekingReportService _reportService;
         private readonly IDslLogger _log;
+        private readonly ServiceLabelExcludeLogic _labelExcludeLogic;
 
         public MetricsReportBuilder(
             IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
             IPeekingReportService reportService,
+            IOptions<DockerPeekerOptions> opts,
             ILogger<MetricsReportBuilder> logger = null)
         {
             _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
             _reportService = reportService;
             _log = logger?.Dsl();
+
+            _labelExcludeLogic = opts.Value.DisableServiceContainerLabels
+                ? new ServiceLabelExcludeLogic(opts.Value.ServiceLabelsWhiteList)
+                : null;
         }
 
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
@@ -57,7 +64,10 @@ namespace MyLab.DockerPeeker.Tools
             {
                 var writer = new ContainerMetricsWriter(
                     containerState,
-                    reportStringBuilder);
+                    reportStringBuilder)
+                {
+                    LabelExcludeLogic = _labelExcludeLogic
+                };
 
                 Dictionary<string, ExceptionDto> errors = null; 
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.Extensions.Options;
 
 namespace MyLab.DockerPeeker.Tools
 {
@@ -15,10 +17,10 @@ namespace MyLab.DockerPeeker.Tools
         /// <summary>
         /// Initializes a new instance of <see cref="DockerCaller"/>
         /// </summary>
-        public DockerCaller()
+        public DockerCaller(IOptions<DockerPeekerOptions> opts)
         {
             _docker = new DockerClientConfiguration(
-                    new Uri("unix:///var/run/docker.sock"))
+                    new Uri(opts.Value.Socket))
                 .CreateClient();
         }
 
