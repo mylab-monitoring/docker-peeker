@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Services;
+using MyLab.Log;
 using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Tools
@@ -58,7 +59,7 @@ namespace MyLab.DockerPeeker.Tools
                     containerState,
                     reportStringBuilder);
 
-                Dictionary<string, Exception> errors = null; 
+                Dictionary<string, ExceptionDto> errors = null; 
 
                 foreach (var metricsProvider in metricsProviders)
                 {
@@ -78,7 +79,7 @@ namespace MyLab.DockerPeeker.Tools
                             .AndFactIs("container-name", containerState.Name)
                             .Write();
 
-                        errors ??= new Dictionary<string, Exception>();
+                        errors ??= new Dictionary<string, ExceptionDto>();
                         errors.Add(metricsProvider.GetType().Name, e);
                     }
 

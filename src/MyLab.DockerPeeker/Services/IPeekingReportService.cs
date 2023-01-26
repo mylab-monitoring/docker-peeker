@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MyLab.DockerPeeker.Tools;
+using MyLab.Log;
 
 namespace MyLab.DockerPeeker.Services
 {
@@ -27,7 +28,7 @@ namespace MyLab.DockerPeeker.Services
 
     public class PeekingReport
     {
-        public Exception CommonError { get; set; }
+        public ExceptionDto CommonError { get; set; }
 
         public PeekingReportItem[] Containers { get; set; }
     }
@@ -36,6 +37,6 @@ namespace MyLab.DockerPeeker.Services
     {
         public ContainerState State { get; set; }
 
-        public Dictionary<string, Exception> Errors { get; set; }
+        public Dictionary<string, ExceptionDto> Errors { get; set; }
     }
 }
