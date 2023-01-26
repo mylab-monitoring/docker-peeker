@@ -5,16 +5,10 @@ namespace MyLab.DockerPeeker.Tools
 {
     public class ContainerState
     {
-        public string Id { get; }
-        public string Pid { get; }
-
-        public ReadOnlyDictionary<string, string> Labels { get; }
-
-        public ContainerState(string id, string pid, IDictionary<string, string> labels)
-        {
-            Id = id;
-            Pid = pid;
-            Labels = new ReadOnlyDictionary<string, string>(labels);
-        }
+        public string Name { get; set; }
+        public string ContainerId { get; set; }
+        public string Pid { get; set; }
+        public Dictionary<string, string> Labels { get; set; }
+        
     }
 }

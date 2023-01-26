@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,6 @@ namespace FuncTests
                 ServiceOverrider = s => s
                     .AddSingleton<IFileContentProviderV1, TestFileContentProvider>()
                     .AddSingleton<ICGroupDetector, TestCGroupDetector>()
-                    .AddSingleton<IContainerListProvider, TestContainerListProvider>()
                     .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
                     .AddLogging(l => l
                         .AddFilter(l => true)
@@ -152,42 +152,22 @@ namespace FuncTests
     {
         private int _pidIndex = 123;
 
-        public Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
+        public Task<ContainerState[]> ProvideAsync()
         {
-            if (containersLinks.Length != 1)
-                throw new InvalidOperationException("Container id should be single");
-
-            var containerLongId = containersLinks.SingleOrDefault()?.LongId;
-
-            if(string.IsNullOrWhiteSpace(containerLongId))
-                throw new InvalidOperationException("Container id not defined");
-            if(containerLongId != "foo")
-                throw new InvalidOperationException("Met unexpected container id");
-
             var pid = _pidIndex++.ToString();
 
             return Task.FromResult(new []
             {
-                new ContainerState("foo", pid, new Dictionary<string, string>
+                new ContainerState
                 {
-                    {"label_pid", pid}
-                }), 
-            });
-        }
-    }
-
-    class TestContainerListProvider : IContainerListProvider
-    {
-        public Task<ContainerLink[]> ProviderActiveContainersAsync()
-        {
-            return Task.FromResult(new[]
-            {
-                new ContainerLink
-                {
-                    LongId = "foo",
+                    Pid = pid,
                     Name = "bar",
-                    CreatedAt = DateTime.Now
-                },
+                    ContainerId = "foo",
+                    Labels = new Dictionary<string, string>
+                    {
+                        {"label_pid", pid}
+                    }
+                } 
             });
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Docker.DotNet;
@@ -21,19 +22,14 @@ namespace MyLab.DockerPeeker.Tools
                 .CreateClient();
         }
 
-        public async Task<ContainerLink[]> GetActiveContainersAsync()
+        public async Task<ContainerShortInfo[]> GetActiveContainersAsync()
         {
             var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
             {
                 All = true
             });
 
-            return containers.Select(c => new ContainerLink
-            {
-                CreatedAt = c.Created,
-                LongId = c.ID,
-                Name = c.Names.FirstOrDefault()
-            }).ToArray();
+            return containers.Select(c => new ContainerShortInfo(c)).ToArray();
         }
 
         public async Task<ContainerState[]> GetStates(string[] ids)
@@ -44,7 +40,13 @@ namespace MyLab.DockerPeeker.Tools
             {
                 var inspection = await _docker.Containers.InspectContainerAsync(containerId);
                 
-                resList.Add(new ContainerState(containerId, inspection.State.Pid.ToString(), inspection.Config.Labels));
+                resList.Add(new ContainerState
+                {
+                    Name = inspection.Name,
+                    ContainerId = containerId,
+                    Pid = inspection.State.Pid.ToString(),
+                    Labels = new Dictionary<string, string>(inspection.Config.Labels)
+                });
             }
 
             return resList.ToArray();

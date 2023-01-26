@@ -28,10 +28,10 @@ namespace MyLab.DockerPeeker
             srv.AddControllers(c => c.AddExceptionProcessing());
             
             srv.AddSingleton<DockerCaller>();
+            srv.AddSingleton<IPeekingReportService, PeekingReportService>();
             srv.AddSingleton<ICGroupDetector, CGroupDetector>();
             srv.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
             srv.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
-            srv.AddSingleton<IContainerListProvider, ContainerListProvider>();
             srv.AddSingleton<MetricsReportBuilder>();
 
             srv.AddSingleton<IFileContentProviderV1, FileContentProviderV1>();

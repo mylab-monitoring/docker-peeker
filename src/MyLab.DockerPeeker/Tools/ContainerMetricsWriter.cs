@@ -8,16 +8,13 @@ namespace MyLab.DockerPeeker.Tools
 {
     class ContainerMetricsWriter
     {
-        private readonly ContainerLink _containerLink;
         private readonly ContainerState _containerState;
         private readonly StringBuilder _stringBuilder;
 
         public ContainerMetricsWriter(
-            ContainerLink containerLink,
             ContainerState containerState,
             StringBuilder stringBuilder)
         {
-            _containerLink = containerLink;
             _containerState = containerState;
             _stringBuilder = stringBuilder;
         }
@@ -29,7 +26,7 @@ namespace MyLab.DockerPeeker.Tools
             if(!string.IsNullOrEmpty(metric.Type.Description))
                 sb.AppendLine($"# HELP {metric.Type.Description}");
             sb.AppendLine($"# TYPE {metric.Type.Name} {metric.Type.Type}");
-            sb.Append($"{metric.Type.Name}{{container_name=\"{_containerLink.Name}\"");
+            sb.Append($"{metric.Type.Name}{{container_name=\"{_containerState.Name}\"");
 
             var labels = new Dictionary<string,string>();
 

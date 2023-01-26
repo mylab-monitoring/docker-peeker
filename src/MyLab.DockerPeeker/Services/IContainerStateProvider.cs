@@ -32,17 +32,19 @@ namespace MyLab.DockerPeeker.Services
 
             var containers = await _dockerCaller.GetActiveContainersAsync();
 
-            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.LongId != ck));
+            // ReSharper disable once InconsistentlySynchronizedField
+            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
             foreach (var lostContainer in lostContainers)
             {
+                // ReSharper disable once InconsistentlySynchronizedField
                 _states.Remove(lostContainer);
             } 
 
             lock (_statesLock)
             {
                 needToGetState = containers
-                    .Where(l => !_states.TryGetValue(l.LongId, out var found) || found.ActualDt < l.CreatedAt)
-                    .Select(l => l.LongId)
+                    .Where(l => !_states.TryGetValue(l.Id, out var found) || found.ActualDt < l.CreatedAt)
+                    .Select(l => l.Id)
                     .ToArray();
             }
 
@@ -60,13 +62,13 @@ namespace MyLab.DockerPeeker.Services
                             State = newState
                         };
 
-                        if (_states.ContainsKey(newState.Id))
+                        if (_states.ContainsKey(newState.ContainerId))
                         {
-                            _states[newState.Id] = newCashedState;
+                            _states[newState.ContainerId] = newCashedState;
                         }
                         else
                         {
-                            _states.Add(newState.Id, newCashedState);
+                            _states.Add(newState.ContainerId, newCashedState);
                         }
                     }
                 }
@@ -75,8 +77,8 @@ namespace MyLab.DockerPeeker.Services
             lock (_statesLock)
             {
                 return containers
-                    .Where(l => _states.ContainsKey(l.LongId))
-                    .Select(l => _states[l.LongId].State)
+                    .Where(l => _states.ContainsKey(l.Id))
+                    .Select(l => _states[l.Id].State)
                     .ToArray();
             }
         }
@@ -84,6 +86,7 @@ namespace MyLab.DockerPeeker.Services
         class CashedState
         {
             public ContainerState State { get; set; }
+
             public DateTime ActualDt { get; set; }
         }
     }

@@ -13,40 +13,58 @@ namespace MyLab.DockerPeeker.Tools
     {
         private readonly IContainerStateProvider _containerStateProvider;
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
+        private readonly IPeekingReportService _reportService;
         private readonly IDslLogger _log;
-
-        
 
         public MetricsReportBuilder(
             IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
+            IPeekingReportService reportService,
             ILogger<MetricsReportBuilder> logger = null)
         {
             _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
+            _reportService = reportService;
             _log = logger?.Dsl();
         }
 
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
         {
-            var states = await _containerStateProvider.ProvideAsync(containerLinks);
+            ContainerState[] states;
+            IContainerMetricsProvider[] metricsProviders;
 
-            var metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
-
-            foreach (var containerLink in containerLinks)
+            try
             {
-                var containerState = states.FirstOrDefault(st => st.Id == containerLink.LongId);
+                states = await _containerStateProvider.ProvideAsync();
+                metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
+            }
+            catch (Exception e)
+            {
+                _log?.Error(e).Write();
 
+                _reportService.Report(new PeekingReport
+                {
+                    CommonError = e
+                });
+
+                return;
+            }
+
+            var containerReports = new List<PeekingReportItem>();
+
+            foreach (var containerState in states)
+            {
                 var writer = new ContainerMetricsWriter(
-                    containerLink, 
                     containerState,
                     reportStringBuilder);
+
+                Dictionary<string, Exception> errors = null; 
 
                 foreach (var metricsProvider in metricsProviders)
                 {
                     try
                     {
-                        var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId, containerState?.Pid);
+                        var containerMetrics = await metricsProvider.ProvideAsync(containerState.ContainerId, containerState.Pid);
 
                         foreach (var containerMetric in containerMetrics)
                         {
@@ -56,12 +74,26 @@ namespace MyLab.DockerPeeker.Tools
                     catch (Exception e)
                     {
                         _log?.Error("Container metrics providing error", e)
-                            .AndFactIs("container-link", containerLink)
+                            .AndFactIs("container-id", containerState.ContainerId)
+                            .AndFactIs("container-name", containerState.Name)
                             .Write();
+
+                        errors ??= new Dictionary<string, Exception>();
+                        errors.Add(metricsProvider.GetType().Name, e);
                     }
+
+                    containerReports.Add(new PeekingReportItem
+                    {
+                        State = containerState,
+                        Errors = errors
+                    });
                 }
             }
 
+            _reportService.Report(new PeekingReport
+            {
+                Containers = containerReports.ToArray()
+            });
         }
     }
 }
