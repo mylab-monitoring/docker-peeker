@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.DockerPeeker.Services;
 using MyLab.DockerPeeker.Tools;
+using MyLab.StatusProvider;
 using MyLab.WebErrors;
 using Newtonsoft.Json;
 
@@ -38,6 +39,7 @@ namespace MyLab.DockerPeeker
             srv.AddSingleton<IContainerStateProvider, DockerContainerStateProvider>();
             srv.AddSingleton<IContainerMetricsProviderRegistry, ContainerMetricsProviderRegistry>();
             srv.AddSingleton<MetricsReportBuilder>();
+            srv.AddAppStatusProviding();
 
             srv.AddSingleton<IFileContentProviderV1, FileContentProviderV1>();
             srv.AddSingleton<IFileContentProviderV2, FileContentProviderV2>();
@@ -65,6 +67,8 @@ namespace MyLab.DockerPeeker
             {
                 endpoints.MapControllers();
             });
+                
+            app.UseStatusApi();
         }
     }
 }
