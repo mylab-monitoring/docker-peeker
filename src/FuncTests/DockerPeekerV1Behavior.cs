@@ -15,11 +15,11 @@ using Xunit.Abstractions;
 
 namespace FuncTests
 {
-    public class DockerPeekerBehavior : IDisposable
+    public class DockerPeekerV1Behavior : IDisposable
     {
         private readonly TestApi<Startup, IMetricService> _api;
 
-        public DockerPeekerBehavior(ITestOutputHelper output)
+        public DockerPeekerV1Behavior(ITestOutputHelper output)
         {
             _api = new TestApi<Startup, IMetricService>
             {
@@ -146,60 +146,60 @@ namespace FuncTests
         {
             _api?.Dispose();
         }
-    }
 
-    class TestContainerStateProvider : IContainerStateProvider
-    {
-        private int _pidIndex = 123;
-
-        public Task<ContainerState[]> ProvideAsync()
+        class TestContainerStateProvider : IContainerStateProvider
         {
-            var pid = _pidIndex++.ToString();
+            private int _pidIndex = 123;
 
-            return Task.FromResult(new []
+            public Task<ContainerState[]> ProvideAsync()
             {
-                new ContainerState
+                var pid = _pidIndex++.ToString();
+
+                return Task.FromResult(new[]
                 {
-                    Pid = pid,
-                    Name = "bar",
-                    ContainerId = "foo",
-                    Labels = new Dictionary<string, string>
+                    new ContainerState
                     {
-                        {"label_pid", pid}
+                        Pid = pid,
+                        Name = "bar",
+                        ContainerId = "foo",
+                        Labels = new Dictionary<string, string>
+                        {
+                            {"label_pid", pid}
+                        }
                     }
-                } 
-            });
-        }
-    }
-
-    class TestFileContentProvider : IFileContentProviderV1
-    {
-        public Task<string> ReadCpuStat(string containerLongId)
-        {
-            return File.ReadAllTextAsync("files\\v1\\cpuacct.stat");
+                });
+            }
         }
 
-        public Task<string> ReadMemStat(string containerLongId)
+        class TestFileContentProvider : IFileContentProviderV1
         {
-            return File.ReadAllTextAsync("files\\v1\\memory.stat");
+            public Task<string> ReadCpuStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v1\\cpuacct.stat");
+            }
+
+            public Task<string> ReadMemStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v1\\memory.stat");
+            }
+
+            public Task<string> ReadBlkStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v1\\blkio.throttle.io_service_bytes");
+            }
+
+            public Task<string> ReadNetStat(string containerPid)
+            {
+                return File.ReadAllTextAsync("files\\v1\\netstat.txt");
+            }
         }
 
-        public Task<string> ReadBlkStat(string containerLongId)
+        class TestCGroupDetector : ICGroupDetector
         {
-            return File.ReadAllTextAsync("files\\v1\\blkio.throttle.io_service_bytes");
-        }
-
-        public Task<string> ReadNetStat(string containerPid)
-        {
-            return File.ReadAllTextAsync("files\\v1\\netstat.txt");
-        }
-    }
-
-    class TestCGroupDetector : ICGroupDetector
-    {
-        public Task<CGroupVersion> GetCGroupVersionAsync()
-        {
-            return Task.FromResult(CGroupVersion.V1);
+            public Task<CGroupVersion> GetCGroupVersionAsync()
+            {
+                return Task.FromResult(CGroupVersion.V1);
+            }
         }
     }
 }
