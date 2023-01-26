@@ -9,7 +9,7 @@ using MyLab.DockerPeeker.Tools;
 namespace MyLab.DockerPeeker.Controllers
 {
     [ApiController]
-    [Route("config")]
+    [Route("report")]
     public class ReportController : ControllerBase
     {
         private readonly IPeekingReportService _reportService;
