@@ -58,7 +58,7 @@ services:
 
 ```
 
-### Конфигурация
+## Конфигурация
 
 Конфигурация сервиса загружается из `json`-файла `/app/appsettings.json` (путь в контейнере) и переменных окружения ([правила именования](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#environment-variable-configuration-provider)).
 
