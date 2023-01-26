@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace MyLab.DockerPeeker.Services
 {
-    interface ICGroupDetector
+    public interface ICGroupDetector
     {
         Task<CGroupVersion> GetCGroupVersionAsync();
     }
 
-    enum CGroupVersion
+    public enum CGroupVersion
     {
         Undefined,
         V1,

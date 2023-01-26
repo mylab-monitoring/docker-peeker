@@ -4,69 +4,108 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MyLab.DockerPeeker.Services;
+using MyLab.Log;
 using MyLab.Log.Dsl;
 
 namespace MyLab.DockerPeeker.Tools
 {
     public class MetricsReportBuilder
     {
-        private readonly IContainerListProvider _containerListProvider;
         private readonly IContainerStateProvider _containerStateProvider;
         private readonly IContainerMetricsProviderRegistry _containerMetricsProviderRegistry;
+        private readonly IPeekingReportService _reportService;
         private readonly IDslLogger _log;
 
-        
-
         public MetricsReportBuilder(
-            IContainerListProvider containerListProvider,
             IContainerStateProvider containerStateProvider,
             IContainerMetricsProviderRegistry containerMetricsProviderRegistry,
+            IPeekingReportService reportService,
             ILogger<MetricsReportBuilder> logger = null)
         {
-            _containerListProvider = containerListProvider;
             _containerStateProvider = containerStateProvider;
             _containerMetricsProviderRegistry = containerMetricsProviderRegistry;
+            _reportService = reportService;
             _log = logger?.Dsl();
         }
 
         public async Task WriteReportAsync(StringBuilder reportStringBuilder)
         {
-            var containerLinks = await _containerListProvider.ProviderActiveContainersAsync();
+            ContainerState[] states;
+            IContainerMetricsProvider[] metricsProviders;
 
-            var states = await _containerStateProvider.ProvideAsync(containerLinks);
-
-            var metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
-
-            foreach (var containerLink in containerLinks)
+            try
             {
-                var containerState = states.FirstOrDefault(st => st.Id == containerLink.LongId);
+                states = await _containerStateProvider.ProvideAsync();
+                metricsProviders = await _containerMetricsProviderRegistry.ProvideAsync();
+            }
+            catch (Exception e)
+            {
+                _log?.Error(e).Write();
 
-                var writer = new ContainerMetricsWriter(
-                    containerLink, 
-                    containerState,
-                    reportStringBuilder);
-
-                foreach (var metricsProvider in metricsProviders)
+                _reportService.Report(new PeekingReport
                 {
-                    try
-                    {
-                        var containerMetrics = await metricsProvider.ProvideAsync(containerLink.LongId, containerState?.Pid);
+                    CommonError = e
+                });
 
-                        foreach (var containerMetric in containerMetrics)
-                        {
-                            writer.Write(containerMetric);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        _log?.Error("Container metrics providing error", e)
-                            .AndFactIs("container-link", containerLink)
-                            .Write();
-                    }
-                }
+                return;
             }
 
+            var containerReports = new List<PeekingReportItem>();
+
+            foreach (var containerState in states)
+            {
+                Dictionary<string, ExceptionDto> errors = null;
+                
+                if (!containerState.IsActive)
+                {
+                    _log?.Warning("Inactive container detected")
+                        .AndFactIs("container-state", containerState)
+                        .Write();
+                }
+                else
+                {
+                    var writer = new ContainerMetricsWriter(
+                        containerState,
+                        reportStringBuilder);
+
+                    foreach (var metricsProvider in metricsProviders)
+                    {
+                        try
+                        {
+                            var containerMetrics =
+                                await metricsProvider.ProvideAsync(containerState.Id, containerState.Pid);
+
+                            foreach (var containerMetric in containerMetrics)
+                            {
+                                writer.Write(containerMetric);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            _log?.Error("Container metrics providing error", e)
+                                .AndFactIs("container-id", containerState.Id)
+                                .AndFactIs("container-name", containerState.Name)
+                                .Write();
+
+                            errors ??= new Dictionary<string, ExceptionDto>();
+                            errors.Add(metricsProvider.GetType().Name, e);
+                        }
+                    }
+                }
+
+                containerReports.Add(new PeekingReportItem
+                {
+                    State = containerState,
+                    Errors = errors
+                });
+            }
+
+            _reportService.Report(new PeekingReport
+            {
+                Containers = containerReports.ToArray()
+            });
         }
     }
 }

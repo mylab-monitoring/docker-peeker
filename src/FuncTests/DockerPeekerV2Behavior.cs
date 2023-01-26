@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,18 +15,18 @@ using Xunit.Abstractions;
 
 namespace FuncTests
 {
-    public class DockerPeekerBehavior : IDisposable
+    public class DockerPeekerV2Behavior : IDisposable
     {
         private readonly TestApi<Startup, IMetricService> _api;
 
-        public DockerPeekerBehavior(ITestOutputHelper output)
+        public DockerPeekerV2Behavior(ITestOutputHelper output)
         {
             _api = new TestApi<Startup, IMetricService>
             {
                 Output = output,
                 ServiceOverrider = s => s
-                    .AddSingleton<IFileContentProviderV1, TestFileContentProvider>()
-                    .AddSingleton<IContainerListProvider, TestContainerListProvider>()
+                    .AddSingleton<IFileContentProviderV2, TestFileContentProvider>()
+                    .AddSingleton<ICGroupDetector, TestCGroupDetector>()
                     .AddSingleton<IContainerStateProvider, TestContainerStateProvider>()
                     .AddLogging(l => l
                         .AddFilter(l => true)
@@ -60,8 +61,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_cpu_jiffies_total{container_name=\"bar\",mode=\"user\",container_label_label_pid=\"123\"} 8313", metrics);
-            Assert.Contains("container_cpu_jiffies_total{container_name=\"bar\",mode=\"system\",container_label_label_pid=\"123\"} 10804",
+            Assert.Contains("container_cpu_jiffies_total{container_name=\"bar\",mode=\"user\",container_label_label_pid=\"123\"} 8497", metrics);
+            Assert.Contains("container_cpu_jiffies_total{container_name=\"bar\",mode=\"system\",container_label_label_pid=\"123\"} 9226",
                 metrics);
         }
 
@@ -78,9 +79,9 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"swap\",container_label_label_pid=\"123\"} 0", metrics);
-            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"cache\",container_label_label_pid=\"123\"} 11492564992", metrics);
-            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"rss\",container_label_label_pid=\"123\"} 1930993664", metrics);
+            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"swap\",container_label_label_pid=\"123\"} 16113664", metrics);
+            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"cache\",container_label_label_pid=\"123\"} 38793216", metrics);
+            Assert.Contains("container_mem_bytes{container_name=\"bar\",type=\"rss\",container_label_label_pid=\"123\"} 120168448", metrics);
             Assert.Contains("container_mem_limit_bytes{container_name=\"bar\",type=\"ram\",container_label_label_pid=\"123\"} 9223372036854775807", metrics);
             Assert.Contains("container_mem_limit_bytes{container_name=\"bar\",type=\"ramswap\",container_label_label_pid=\"123\"} 9223372036854775807", metrics);
         }
@@ -98,8 +99,8 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"read\",container_label_label_pid=\"123\"} 263622656", metrics);
-            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 0", metrics);
+            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"read\",container_label_label_pid=\"123\"} 1007616", metrics);
+            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 8192", metrics);
         }
 
         [Fact]
@@ -137,80 +138,88 @@ namespace FuncTests
                 .ToArray();
 
             //Assert
-            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 0", metrics1);
-            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"124\"} 0", metrics2);
+            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"123\"} 8192", metrics1);
+            Assert.Contains("container_blk_bytes_total{container_name=\"bar\",direction=\"write\",container_label_label_pid=\"124\"} 8192", metrics2);
         }
 
         public void Dispose()
         {
             _api?.Dispose();
         }
-    }
 
-    class TestContainerStateProvider : IContainerStateProvider
-    {
-        private int _pidIndex = 123;
-
-        public Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
+        class TestContainerStateProvider : IContainerStateProvider
         {
-            if (containersLinks.Length != 1)
-                throw new InvalidOperationException("Container id should be single");
+            private int _pidIndex = 123;
 
-            var containerLongId = containersLinks.SingleOrDefault()?.LongId;
-
-            if(string.IsNullOrWhiteSpace(containerLongId))
-                throw new InvalidOperationException("Container id not defined");
-            if(containerLongId != "foo")
-                throw new InvalidOperationException("Met unexpected container id");
-
-            var pid = _pidIndex++.ToString();
-
-            return Task.FromResult(new []
+            public Task<ContainerState[]> ProvideAsync()
             {
-                new ContainerState("foo", pid, new Dictionary<string, string>
-                {
-                    {"label_pid", pid}
-                }), 
-            });
-        }
-    }
+                var pid = _pidIndex++.ToString();
 
-    class TestContainerListProvider : IContainerListProvider
-    {
-        public Task<ContainerLink[]> ProviderActiveContainersAsync()
+                return Task.FromResult(new[]
+                {
+                    new ContainerState
+                    {
+                        Pid = pid,
+                        Name = "bar",
+                        Id = "foo",
+                        Labels = new Dictionary<string, string>
+                        {
+                            {"label_pid", pid}
+                        }
+                    }
+                });
+            }
+        }
+
+        class TestFileContentProvider : IFileContentProviderV2
         {
-            return Task.FromResult(new[]
+            public Task<string> ReadNetStat(string containerPid)
             {
-                new ContainerLink
-                {
-                    LongId = "foo",
-                    Name = "bar",
-                    CreatedAt = DateTime.Now
-                },
-            });
-        }
-    }
+                return File.ReadAllTextAsync("files\\v2\\net.stat");
+            }
 
-    class TestFileContentProvider : IFileContentProviderV1
-    {
-        public Task<string> ReadCpuStat(string containerLongId)
-        {
-            return File.ReadAllTextAsync("files\\v1\\cpuacct.stat");
+            public Task<string> ReadCpuStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\cpu.stat");
+            }
+
+            public Task<string> ReadIoStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\io.stat");
+            }
+
+            public Task<string> ReadMemInfo()
+            {
+                return File.ReadAllTextAsync("files\\v2\\meminfo");
+            }
+
+            public Task<string> ReadMemStat(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\memory.stat");
+            }
+
+            public Task<string> ReadMemSwapCurrent(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\memory.swap.current");
+            }
+
+            public Task<string> ReadMemMax(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\memory.max");
+            }
+
+            public Task<string> ReadSwapMax(string containerLongId)
+            {
+                return File.ReadAllTextAsync("files\\v2\\memory.swap.max");
+            }
         }
 
-        public Task<string> ReadMemStat(string containerLongId)
+        class TestCGroupDetector : ICGroupDetector
         {
-            return File.ReadAllTextAsync("files\\v1\\memory.stat");
-        }
-
-        public Task<string> ReadBlkStat(string containerLongId)
-        {
-            return File.ReadAllTextAsync("files\\v1\\blkio.throttle.io_service_bytes");
-        }
-
-        public Task<string> ReadNetStat(string containerPid)
-        {
-            return File.ReadAllTextAsync("files\\v1\\netstat.txt");
+            public Task<CGroupVersion> GetCGroupVersionAsync()
+            {
+                return Task.FromResult(CGroupVersion.V2);
+            }
         }
     }
 }

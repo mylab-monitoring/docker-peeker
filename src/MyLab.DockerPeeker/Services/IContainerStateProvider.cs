@@ -10,59 +10,51 @@ namespace MyLab.DockerPeeker.Services
 {
     public interface IContainerStateProvider
     {
-        Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks);
+        Task<ContainerState[]> ProvideAsync();
     }
 
     class DockerContainerStateProvider : IContainerStateProvider
     {
         private readonly IDictionary<string, CashedState> _states = new Dictionary<string, CashedState>();
-        private readonly object _statesLock = new object();
+        private readonly object _statesLock = new ();
         private readonly DockerCaller _dockerCaller;
         private readonly IDslLogger _log;
 
-        public DockerContainerStateProvider(ILogger<DockerContainerStateProvider> logger = null)
+        public DockerContainerStateProvider(DockerCaller dockerCaller, ILogger<DockerContainerStateProvider> logger = null)
         {
             _log = logger?.Dsl();
-            _dockerCaller = new DockerCaller();
+            _dockerCaller = dockerCaller;
         }
 
-        public async Task<ContainerState[]> ProvideAsync(ContainerLink[] containersLinks)
+        public async Task<ContainerState[]> ProvideAsync()
         {
-            string[] needToGetIds;
+            string[] needToGetState;
+
+            var containers = await _dockerCaller.GetActiveContainersAsync();
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
+            foreach (var lostContainer in lostContainers)
+            {
+                // ReSharper disable once InconsistentlySynchronizedField
+                _states.Remove(lostContainer);
+            } 
 
             lock (_statesLock)
             {
-                needToGetIds = containersLinks
-                    .Where(l => !_states.TryGetValue(l.LongId, out var found) || found.ActualDt < l.CreatedAt)
-                    .Select(l => l.LongId)
+                needToGetState = containers
+                    .Where(l => !_states.TryGetValue(l.Id, out var found) || found.ActualDt < l.CreatedAt)
+                    .Select(l => l.Id)
                     .ToArray();
             }
 
-            if (needToGetIds.Length != 0)
+            if (needToGetState.Length != 0)
             {
-                var dockerResponse = await _dockerCaller.GetStates(needToGetIds);
-
-                var newStates = new List<ContainerState>();
-
-                foreach (var dockerResponseItem in dockerResponse)
-                {
-                    try
-                    {
-                        var dockerState = ContainerState.Parse(dockerResponseItem);
-
-                        newStates.Add(dockerState);
-                    }
-                    catch (Exception e)
-                    {
-                        _log?.Warning("Docker container state parsing error", e)
-                            .AndFactIs("output", dockerResponseItem)
-                            .Write();
-                    }
-                }
-
+                var dockerStates = await _dockerCaller.GetStates(needToGetState);
+                
                 lock (_statesLock)
                 {
-                    foreach (var newState in newStates)
+                    foreach (var newState in dockerStates)
                     {
                         var newCashedState = new CashedState
                         {
@@ -84,9 +76,9 @@ namespace MyLab.DockerPeeker.Services
 
             lock (_statesLock)
             {
-                return containersLinks
-                    .Where(l => _states.ContainsKey(l.LongId))
-                    .Select(l => _states[l.LongId].State)
+                return containers
+                    .Where(l => _states.ContainsKey(l.Id))
+                    .Select(l => _states[l.Id].State)
                     .ToArray();
             }
         }
@@ -94,6 +86,7 @@ namespace MyLab.DockerPeeker.Services
         class CashedState
         {
             public ContainerState State { get; set; }
+
             public DateTime ActualDt { get; set; }
         }
     }

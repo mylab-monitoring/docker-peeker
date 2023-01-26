@@ -16,8 +16,8 @@ namespace MyLab.DockerPeeker.Services
     {
         private readonly ICGroupDetector _cGroupDetector;
 
-        private Lazy<IContainerMetricsProvider[]> _lazyProvidesV1;
-        private Lazy<IContainerMetricsProvider[]> _lazyProvidesV2;
+        private readonly Lazy<IContainerMetricsProvider[]> _lazyProvidesV1;
+        private readonly Lazy<IContainerMetricsProvider[]> _lazyProvidesV2;
 
         public ContainerMetricsProviderRegistry(
             IFileContentProviderV1 fileContentProvider1,

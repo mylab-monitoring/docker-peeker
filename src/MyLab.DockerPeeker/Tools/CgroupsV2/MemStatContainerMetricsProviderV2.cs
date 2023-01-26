@@ -87,6 +87,7 @@ namespace MyLab.DockerPeeker.Tools.CgroupsV2
         private async Task AddLimitsAsync(List<ContainerMetric> mList, string containerLongId)
         {
             var memMaxContent = await _fileContentProvider.ReadMemMax(containerLongId);
+            
             if (long.TryParse(memMaxContent, out long memMax))
             {
                 mList.Add(new ContainerMetric(memMax, ContainerMetricType.MemLimitMetricType));
