@@ -92,6 +92,15 @@ services:
 
 Обычно, это значение - `100`.
 
+#### `container_cpu_ms_total` (counter)
+
+Счётчик, отражающий использование времени процессора. Измеряется в миллисекундах. 
+
+Метка `mode` определяет режим, в котором работает процессор в контексте контейнера:
+
+* `user` - time is the amount of time a process has direct control of the CPU, executing process code;
+* `system` - time is the time the kernel is executing system calls on behalf of the process.
+
 #### `container_mem_bytes`(gauge)
 
 Показатель, отражающий объём памяти, используемый контейнером.
