@@ -82,13 +82,13 @@ namespace MyLab.DockerPeeker.Tools
                         errors ??= new Dictionary<string, ExceptionDto>();
                         errors.Add(metricsProvider.GetType().Name, e);
                     }
-
-                    containerReports.Add(new PeekingReportItem
-                    {
-                        State = containerState,
-                        Errors = errors
-                    });
                 }
+
+                containerReports.Add(new PeekingReportItem
+                {
+                    State = containerState,
+                    Errors = errors
+                });
             }
 
             _reportService.Report(new PeekingReport
