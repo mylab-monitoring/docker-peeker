@@ -37,13 +37,18 @@ namespace MyLab.DockerPeeker.Tools
             return containers.Select(c => new ContainerShortInfo(c)).ToArray();
         }
 
-        public async Task<ContainerState[]> GetStates(string[] ids)
+        public async Task<ContainerState[]> GetStates()
         {
             var resList = new List<ContainerState>();
 
-            foreach (var containerId in ids)
+            var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
             {
-                var inspection = await _docker.Containers.InspectContainerAsync(containerId);
+                All = true
+            });
+
+            foreach (var container in containers)
+            {
+                var inspection = await _docker.Containers.InspectContainerAsync(container.ID);
 
                 var selectedLabels = _labelExcludeLogic != null
                     ? inspection.Config.Labels.Where(l => !_labelExcludeLogic.ShouldExcludeLabel(l.Key))
@@ -52,7 +57,7 @@ namespace MyLab.DockerPeeker.Tools
                 resList.Add(new ContainerState
                 {
                     Name = inspection.Name.TrimStart('/'),
-                    Id = containerId,
+                    Id = container.ID,
                     Pid = inspection.State.Pid.ToString(),
                     Labels = new Dictionary<string, string>(selectedLabels),
                     Status = inspection.State.Status,
