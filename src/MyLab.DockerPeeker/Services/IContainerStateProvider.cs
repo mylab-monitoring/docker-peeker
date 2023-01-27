@@ -26,66 +26,63 @@ namespace MyLab.DockerPeeker.Services
             _dockerCaller = dockerCaller;
         }
 
-        public Task<ContainerState[]> ProvideAsync()
+        public async Task<ContainerState[]> ProvideAsync()
         {
-            //string[] needToGetState;
+            string[] needToGetState;
 
-            //var containers = await _dockerCaller.GetContainersAsync();
+            var containers = await _dockerCaller.GetContainersAsync();
 
-            //// ReSharper disable once InconsistentlySynchronizedField
-            //var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
-            //foreach (var lostContainer in lostContainers)
-            //{
-            //    // ReSharper disable once InconsistentlySynchronizedField
-            //    _states.Remove(lostContainer);
-            //} 
+            // ReSharper disable once InconsistentlySynchronizedField
+            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
+            foreach (var lostContainer in lostContainers)
+            {
+                // ReSharper disable once InconsistentlySynchronizedField
+                _states.Remove(lostContainer);
+            } 
 
-            //lock (_statesLock)
-            //{
-            //    needToGetState = containers
-            //        .Where(l => 
-            //            !_states.TryGetValue(l.Id, out var found) || 
-            //            found.ActualDt < l.CreatedAt)
-            //        .Select(l => l.Id)
-            //        .ToArray();
-            //}
+            lock (_statesLock)
+            {
+                needToGetState = containers
+                    .Where(l => 
+                        !_states.TryGetValue(l.Id, out var found) || 
+                        found.ActualDt < l.CreatedAt)
+                    .Select(l => l.Id)
+                    .ToArray();
+            }
 
-            //if (needToGetState.Length != 0)
-            //{
-            
-                //var dockerStates = await _dockerCaller.GetStates();
+            if (needToGetState.Length != 0)
+            {
+                var dockerStates = await _dockerCaller.GetStates(needToGetState);
                 
-                //lock (_statesLock)
-                //{
-                //    foreach (var newState in dockerStates)
-                //    {
-                //        var newCashedState = new CashedState
-                //        {
-                //            ActualDt = DateTime.Now,
-                //            State = newState
-                //        };
+                lock (_statesLock)
+                {
+                    foreach (var newState in dockerStates)
+                    {
+                        var newCashedState = new CashedState
+                        {
+                            ActualDt = DateTime.Now,
+                            State = newState
+                        };
 
-                //        if (_states.ContainsKey(newState.Id))
-                //        {
-                //            _states[newState.Id] = newCashedState;
-                //        }
-                //        else
-                //        {
-                //            _states.Add(newState.Id, newCashedState);
-                //        }
-                //    }
-                //}
-            //}
+                        if (_states.ContainsKey(newState.Id))
+                        {
+                            _states[newState.Id] = newCashedState;
+                        }
+                        else
+                        {
+                            _states.Add(newState.Id, newCashedState);
+                        }
+                    }
+                }
+            }
 
-            //lock (_statesLock)
-            //{
-            //    return containers
-            //        .Where(l => _states.ContainsKey(l.Id))
-            //        .Select(l => _states[l.Id].State)
-            //        .ToArray();
-            //}
-
-            return _dockerCaller.GetStates();
+            lock (_statesLock)
+            {
+                return containers
+                    .Where(l => _states.ContainsKey(l.Id))
+                    .Select(l => _states[l.Id].State)
+                    .ToArray();
+            }
         }
 
         class CashedState
