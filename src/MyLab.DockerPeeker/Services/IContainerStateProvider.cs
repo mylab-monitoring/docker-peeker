@@ -98,7 +98,7 @@ namespace MyLab.DockerPeeker.Services
             foreach (var itm in cache)
             {
                 if (!actualContainerIds.Contains(itm.Key) ||
-                    !File.Exists($"/proc/{itm.Value.Pid}"))
+                    !Directory.Exists($"/proc/{itm.Value.Pid}"))
                 {
                     _states.Remove(itm.Key);
                 }
