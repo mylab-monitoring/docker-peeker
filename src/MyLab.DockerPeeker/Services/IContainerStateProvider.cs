@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -31,14 +32,18 @@ namespace MyLab.DockerPeeker.Services
             string[] needToGetState;
 
             var containers = await _dockerCaller.GetContainersAsync();
-
-            // ReSharper disable once InconsistentlySynchronizedField
-            var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
-            foreach (var lostContainer in lostContainers)
+            
+            lock (_statesLock)
             {
-                // ReSharper disable once InconsistentlySynchronizedField
-                _states.Remove(lostContainer);
-            } 
+                var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
+
+                ActualizeCache(containers.Select(c => c.Id).ToArray());
+
+                foreach (var lostContainer in lostContainers)
+                {
+                    _states.Remove(lostContainer);
+                }
+            }
 
             lock (_statesLock)
             {
@@ -61,7 +66,8 @@ namespace MyLab.DockerPeeker.Services
                         var newCashedState = new CashedState
                         {
                             ActualDt = DateTime.Now,
-                            State = newState
+                            State = newState,
+                            Pid = newState.Pid
                         };
 
                         if (_states.ContainsKey(newState.Id))
@@ -85,11 +91,27 @@ namespace MyLab.DockerPeeker.Services
             }
         }
 
+        private void ActualizeCache(string[] actualContainerIds)
+        {
+            var cache = _states.ToArray();
+
+            foreach (var itm in cache)
+            {
+                if (!actualContainerIds.Contains(itm.Key) ||
+                    !File.Exists($"/proc/{itm.Value.Pid}"))
+                {
+                    _states.Remove(itm.Key);
+                }
+            }
+        }
+
         class CashedState
         {
             public ContainerState State { get; set; }
 
             public DateTime ActualDt { get; set; }
+
+            public string Pid { get; set; }
         }
     }
 }

@@ -162,6 +162,7 @@ namespace FuncTests
                         Pid = pid,
                         Name = "bar",
                         Id = "foo",
+                        IsActive = true,
                         Labels = new Dictionary<string, string>
                         {
                             {"label_pid", pid}
