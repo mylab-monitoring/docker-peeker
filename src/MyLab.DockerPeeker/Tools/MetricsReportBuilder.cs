@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MyLab.DockerPeeker.Services;
 using MyLab.Log;
 using MyLab.Log.Dsl;
@@ -35,6 +33,8 @@ namespace MyLab.DockerPeeker.Tools
             ContainerState[] states;
             IContainerMetricsProvider[] metricsProviders;
 
+            DateTime startTime = DateTime.Now;
+
             try
             {
                 states = await _containerStateProvider.ProvideAsync();
@@ -46,7 +46,9 @@ namespace MyLab.DockerPeeker.Tools
 
                 _reportService.Report(new PeekingReport
                 {
-                    CommonError = e
+                    CommonError = e,
+                    PeekingDateTime = startTime,
+                    PeekingTimeSpan = DateTime.Now - startTime
                 });
 
                 return;
@@ -104,7 +106,9 @@ namespace MyLab.DockerPeeker.Tools
 
             _reportService.Report(new PeekingReport
             {
-                Containers = containerReports.ToArray()
+                Containers = containerReports.ToArray(),
+                PeekingDateTime = startTime,
+                PeekingTimeSpan = DateTime.Now - startTime
             });
         }
     }

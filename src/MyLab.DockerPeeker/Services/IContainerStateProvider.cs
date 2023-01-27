@@ -30,7 +30,7 @@ namespace MyLab.DockerPeeker.Services
         {
             string[] needToGetState;
 
-            var containers = await _dockerCaller.GetActiveContainersAsync();
+            var containers = await _dockerCaller.GetContainersAsync();
 
             // ReSharper disable once InconsistentlySynchronizedField
             var lostContainers = _states.Keys.Where(ck => containers.All(c => c.Id != ck));
@@ -43,7 +43,9 @@ namespace MyLab.DockerPeeker.Services
             lock (_statesLock)
             {
                 needToGetState = containers
-                    .Where(l => !_states.TryGetValue(l.Id, out var found) || found.ActualDt < l.CreatedAt)
+                    .Where(l => 
+                        !_states.TryGetValue(l.Id, out var found) || 
+                        found.ActualDt < l.CreatedAt)
                     .Select(l => l.Id)
                     .ToArray();
             }

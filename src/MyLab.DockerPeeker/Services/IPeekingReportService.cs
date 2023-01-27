@@ -28,6 +28,10 @@ namespace MyLab.DockerPeeker.Services
 
     public class PeekingReport
     {
+        public DateTime PeekingDateTime { get; set; }
+
+        public TimeSpan PeekingTimeSpan { get; set; }
+
         public ExceptionDto CommonError { get; set; }
 
         public PeekingReportItem[] Containers { get; set; }

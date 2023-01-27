@@ -27,7 +27,7 @@ namespace MyLab.DockerPeeker.Tools
                 : null;
         }
 
-        public async Task<ContainerShortInfo[]> GetActiveContainersAsync()
+        public async Task<ContainerShortInfo[]> GetContainersAsync()
         {
             var containers = await _docker.Containers.ListContainersAsync(new ContainersListParameters
             {
