@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -f ./Dockerfile ../src -t mylabtools/docker-peeker:local
+docker build -f ./Dockerfile ../src -t ghcr.io/mylab-monitoring/docker-peeker:local

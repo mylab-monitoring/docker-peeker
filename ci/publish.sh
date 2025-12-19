@@ -1,0 +1,1 @@
+docker build --push --platform linux/amd64 -f ./Dockerfile -t ghcr.io/mylab-monitoring/docker-peeker:latest -t ghcr.io/mylab-monitoring/docker-peeker:$1 ../src
